@@ -3,21 +3,77 @@
     <div class="wrapperW">
       <nav class="index-nav">
         <ul>
-          <li v-for="(item,index) in [0,1,2]" :class="{'is-active':index==activeNav}">{{item}}</li>
+          <li v-for="(item,index) in ['总榜','微信榜','微博榜','今日头条榜']" :class="{'is-active':index==activeNav}" @click="tabToggle(index)">{{item}}</li>
         </ul>
       </nav>
+      <div class="content">
+        <!--<component :is='currentView' keep-alive></component>-->
+        <router-view keep-alive></router-view>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+  import Vue from 'vue'
+  import allRank from '../components/allRank/allRank.vue'
+  import wechatRank from '../components/wechatRank/wechatRank.vue'
+  import weiboRank from '../components/weiboRank/weiboRank.vue'
   export default {
     name: 'zwfw',
     data() {
       return {
-        msg: 'Welcome to Your Vue.js App',
-        activeNav:0
+        currentView: allRank,
+        activeNav: 0
       }
+    },
+    created() {
+      
+      var View = this.$route.name||this.$route.params.type;
+      switch (View) {
+        case "allRank":
+          this.activeNav = 0
+          break;
+        case "wechatRank":
+          this.activeNav = 1;
+          break;
+        case "weiboRank":
+          this.activeNav = 2
+          break;
+      }
+    },
+    methods: {
+      tabToggle(index) {
+        this.activeNav = index;
+        switch (index) {
+          case 0:
+            this.currentView = allRank;
+            this.$router.push({
+              path: "/zwxmt/allRank"
+            })
+            break;
+          case 1:
+            this.currentView = wechatRank
+            this.$router.push({
+              path: "/zwxmt/wechatRank"
+            })
+            break;
+          case 2:
+            this.currentView = weiboRank
+            this.$router.push({
+              path: "/zwxmt/weiboRank"
+            })
+            break;
+          case 3:
+            this.$router.push({ name: 'detail', params: {type:"wechatRank",id: 123 }})
+            break;
+        }
+      }
+    },
+    components: {
+      allRank,
+      wechatRank,
+      weiboRank
     }
   }
 
@@ -46,34 +102,49 @@
 
   .wrapperW {
     padding-top: 20px;
-    .index-nav{
+    .index-nav {
       height: 50px;
       background: #fff;
       line-height: 45px;
-      ul{
-         border-bottom:1px solid #ccc;
-        li{
+      ul {
+        border-bottom: 1px solid #ccc;
+        li {
           width: 107px;
-          text-align: center; 
+          text-align: center;
           cursor: pointer;
           margin: 0;
           box-sizing: content-box;
-          &.is-active{
+          color: #666;
+          &.is-active {
             border-top: 4px solid #C91B1B;
             border-right: 1px solid #ccc;
+            border-left: 1px solid #ccc;
             position: relative;
-            &::after{
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+
+            &:first-child {
+              border-left: 0;
+            }
+            &::after {
               position: absolute;
               bottom: -1px;
-              content:'';
+              content: '';
               display: block;
               width: 100%;
               height: 1px;
               background: #fff;
+
             }
           }
         }
       }
     }
+    .content {
+      min-height: 500px;
+      background: #fff;
+    }
   }
+
 </style>
