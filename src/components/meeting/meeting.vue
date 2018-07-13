@@ -42,6 +42,10 @@
 </script>
 
 <style lang="scss" scoped>
+.container{
+  background: #fff;
+  margin-top: 20px;
+}
   @mixin lvhfa {
     &:link,
     &:visited,
@@ -64,12 +68,10 @@
   .list {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
     .item {
       display: flex;
       margin-bottom: 40px;
-      &:nth-child(odd) {
-        margin-right: 78px;
-      }
       .itemImg {
         display: inline-block;
         -webkit-box-flex: 0;

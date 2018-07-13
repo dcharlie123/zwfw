@@ -54,7 +54,7 @@
     <div class="cardWarp">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <el-select v-model="value" placeholder="请选择">
+          <el-select v-model="value" placeholder="请选择" size="small">
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
@@ -71,7 +71,9 @@
               <tr>
                 <td>广东环保局</td>
                 <td>广东环保</td>
-                <td class="rank top3"><span>1</span></td>
+                <td class="rankRadius top3">
+                  <span>1</span>
+                </td>
                 <td>
                   <i></i>
                   <span>1</span>
@@ -80,7 +82,9 @@
               <tr>
                 <td>广东环保局</td>
                 <td>广东环保</td>
-                <td class="rank top3"><span>2</span></td>
+                <td class="rankRadius top3">
+                  <span>2</span>
+                </td>
                 <td>
                   <i></i>
                   <span>1</span>
@@ -89,7 +93,9 @@
               <tr>
                 <td>广东环保局</td>
                 <td>广东环保</td>
-                <td class="rank top3"><span>3</span></td>
+                <td class="rankRadius top3">
+                  <span>3</span>
+                </td>
                 <td>
                   <i></i>
                   <span>1</span>
@@ -98,7 +104,9 @@
               <tr>
                 <td>广东环保局</td>
                 <td>广东环保</td>
-                <td class="rank"><span>4</span></td>
+                <td class="rankRadius">
+                  <span>4</span>
+                </td>
                 <td>
                   <i></i>
                   <span>1</span>
@@ -156,6 +164,7 @@
 </script>
 
 <style lang="scss" scoped>
+  @import '../../assets/css/style.scss';
   .container {}
 
   .selectBtn {
@@ -165,48 +174,22 @@
 
   .el-card__body {
     .table-wrapper {
-      .table {
-        border-collapse: collapse;
-        width: 100%;
-        text-align: center;
-        thead {
-          th {
-            height: 60px;
-            line-height: 60px;
-            font-size: 14px;
-            color: #999;
-          }
+      @include Mytable;
+      .rankRadius {
+        span {
+          display: inline-block;
+          width: 40px;
+          height: 40px;
+          line-height: 40px;
+          border: 1px solid #ccc;
+          color: #333;
+          border-radius: 50%;
+          text-align: center;
         }
-        tbody {
-          padding: 0;
-          td {
-            height: 60px;
-            line-height: 60px;
-            border: 0;
-            padding: 0;
-            &.rank{
-             span{
-               display: inline-block;
-               width: 40px;
-               height: 40px;
-               line-height: 40px;
-               border:1px solid #ccc;
-               color: #333;
-               border-radius: 50%;
-               text-align: center;
-             }
-             &.top3{
-               span{
-                 border: 1px solid rgba(255,163,51,1);
-                 color:rgba(255,163,51,1);
-               }
-             } 
-            }
-          }
-          tr {
-            &:nth-child(odd) {
-              background: #F2F5F6;
-            }
+        &.top3 {
+          span {
+            border: 1px solid rgba(255, 163, 51, 1);
+            color: rgba(255, 163, 51, 1);
           }
         }
       }

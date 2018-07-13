@@ -6,11 +6,11 @@
     <nav class="app-nav_w">
       <div class="container">
         <ul class="app-nav" @click="selectNav">
-          <router-link tag="li" :class="navIndex=='zwxmt' ? 'is-active' : '' " data-index="zwxmt" to="/zwxmt">政务新媒体</router-link>
-          <router-link tag="li"  class="is-disabled" :class="navIndex=='gxxmt' ? 'is-active' : '' " data-index="gxxmt" to="/zwxmt">高校新媒体</router-link>
-          <router-link tag="li" :class="navIndex=='report' ? 'is-active' : '' " data-index="report" to="/report">智库报告</router-link>
-          <router-link tag="li" :class="navIndex=='meeting' ? 'is-active' : '' " data-index="meeting" to="/meeting">小编课堂</router-link>
-          <router-link tag="li" :class="navIndex=='hdjy' ? 'is-active' : '' " data-index="hdjy" to="/zwxmt">互动建议</router-link>
+          <router-link tag="li" data-index="zwxmt" to="/zwxmt">政务新媒体</router-link>
+          <router-link tag="li" class="is-disabled" data-index="gxxmt" to="/gxxmt">高校新媒体</router-link>
+          <router-link tag="li" data-index="report" to="/report">智库报告</router-link>
+          <router-link tag="li" data-index="meeting" to="/meeting">小编课堂</router-link>
+          <router-link tag="li" data-index="hdjy" to="/hdjy" class="is-disabled">互动建议</router-link>
         </ul>
       </div>
     </nav>
@@ -26,13 +26,13 @@
     name: "App",
     data() {
       return {
-        navIndex:"zwxmt",
+        // navIndex:"zwxmt",
         // activeIndex: "zwxmt"
       };
     },
-    created() {
-      this.navIndex=this.$route.path.split('/')[1]
-      // console.log(this.activeIndex);
+    mounted() {
+      // this.navIndex=this.$route.path.split('/')[1]
+      // console.log(router.currentRoute);
     },
     methods: {
       selectNav(event) {
@@ -91,6 +91,7 @@
     width: 1200px;
     margin: 0 auto;
     overflow: hidden;
+    box-sizing: border-box;
   }
 
   .app-nav_w {
@@ -108,10 +109,11 @@
         padding: 0 36px;
         font-size: 16px;
         cursor: pointer;
-        &.is-active {
+        &.is-active,
+        &.router-link-active {
           background: #C91B1B;
         }
-        &.is-disabled{
+        &.is-disabled {
           cursor: not-allowed;
         }
       }

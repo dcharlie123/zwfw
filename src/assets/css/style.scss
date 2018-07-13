@@ -1,48 +1,123 @@
-#app, body, html {
-    width: 100%;
-    height: 100%;
-    min-width: 1200px;
-    background: #f1f1f1;
+#app,
+body,
+html {
+  width: 100%;
+  height: 100%;
+  min-width: 1200px;
+  background: #f1f1f1;
 }
-.el-radio-button{
-    margin: 10px;
+
+.el-radio-button {
+  margin: 10px;
 }
-.el-radio-button__orig-radio:checked+.el-radio-button__inner{
-    background-color: #C91B1B;
-    border: 1px solid #C91B1B;
-    -webkit-box-shadow: -1px 0 0 0 #C91B1B;
+
+.el-radio-button__orig-radio:checked+.el-radio-button__inner {
+  background-color: #C91B1B;
+  border: 1px solid #C91B1B;
+  -webkit-box-shadow: -1px 0 0 0 #C91B1B;
 }
-.el-radio-button__inner:hover{
-    color:#C91B1B;
+
+.el-radio-button__inner:hover {
+  color: #C91B1B;
 }
-.el-radio-button:first-child .el-radio-button__inner,.el-radio-button .el-radio-button__inner{
-    border: 1px solid #dcdfe6;
-    border-radius: 4px 4px 4px 4px;
-    // width: 160px;
-    padding:0 30px;
-    height: 50px;
-    line-height: 50px;
-    // padding: 0;
+
+.el-radio-button:first-child .el-radio-button__inner,
+.el-radio-button .el-radio-button__inner {
+  border: 1px solid #dcdfe6;
+  border-radius: 4px 4px 4px 4px; // width: 160px;
+  padding: 0 30px;
+  height: 50px;
+  line-height: 50px; // padding: 0;
 }
-.cardWarp .el-card__body{padding: 0 0 108px 0;}
-.el-select .el-input .el-select__caret{
-    color:#666;
+
+.cardWarp .el-card__body {
+  padding: 0 0 108px 0;
 }
-.el-input__inner{
-    border: 1px solid #ccc;
-    color: #666
+
+.el-select .el-input .el-select__caret {
+  color: #666;
 }
-.el-input.is-active .el-input__inner, .el-input__inner:focus{
-    border-color:#FFA333;
-    color:#FFA333;
+
+.el-input__inner {
+  border: 1px solid #ccc;
+  color: #666
 }
-.el-select .el-input.is-focus .el-input__inner{
-    border-color:#ccc;
+
+.el-input.is-active .el-input__inner,
+.el-input__inner:focus {
+  border-color: #FFA333;
+  color: #FFA333;
 }
+
+.el-select .el-input.is-focus .el-input__inner {
+  border-color: #ccc;
+}
+
 .el-select .el-input__inner:focus {
-    border-color:#FFA333;
-    color: #FFA333;
+  border-color: #FFA333;
+  color: #FFA333;
 }
-.cardWarp1 .el-card__header{
-    background: #F2F5F6;
+
+.cardWarp1 .el-card__header {
+  background: #F2F5F6;
+}
+
+/*自定义table样式*/
+
+@mixin Mytable {
+  .table {
+    border-collapse: collapse;
+    width: 100%;
+    text-align: center;
+    thead {
+      th {
+        height: 60px;
+        line-height: 60px;
+        font-size: 14px;
+        color: #999;
+      }
+    }
+    tbody {
+      font-size: 14px;
+      padding: 0;
+      td {
+        height: 60px;
+        line-height: 60px;
+        border: 0;
+        padding: 0;
+        .rankRadius {
+          span {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            border: 1px solid #ccc;
+            color: #333;
+            border-radius: 50%;
+            text-align: center;
+          }
+          &.top3 {
+            span {
+              border: 1px solid rgba(255, 163, 51, 1);
+              color: rgba(255, 163, 51, 1);
+            }
+          }
+        }
+        .rank {
+          &.top3 {
+            color: #C91B1B;
+          }
+        }
+        .detail {
+          color: #0DA2FF;
+          cursor: pointer;
+        }
+      }
+      tr {
+        &:nth-child(odd) {
+          background: #F2F5F6;
+        }
+      }
+    }
+  }
 }

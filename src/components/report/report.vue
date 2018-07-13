@@ -78,16 +78,21 @@
     }
   }
 
+  .container {
+    background: #fff;
+    margin-top: 20px;
+  }
+
   .list {
     overflow: hidden;
     padding: 52px 40px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     .item {
       float: left;
       display: flex;
       margin-bottom: 42px;
-      &:nth-child(odd) {
-        margin-right: 52px;
-      }
       .itemImg {
         flex: 0 0 160px;
         width: 160px;
@@ -107,6 +112,7 @@
           color: #7A7E81;
           line-height: 20px;
           margin-top: 9px;
+          margin-bottom: 0;
         }
         .text {
           height: 116px;

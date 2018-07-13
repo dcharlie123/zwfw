@@ -63,8 +63,42 @@
           趋势图
         </div>
         <div>
-          <ve-line :data="chartData" :settings="chartSettings"></ve-line>
+          <ve-line :data="chartData" :extend="chartExtend" :after-config="afterConfig"></ve-line>
 
+        </div>
+      </el-card>
+    </div>
+    <div class="cardWarp1">
+      <el-card class="box-card">
+        <div class="table-wrapper">
+          <table class="table" border="0">
+            <thead>
+              <th>排名</th>
+              <th>机构号</th>
+              <th>总阅读量</th>
+              <th>平均阅读量</th>
+              <th>头条阅读量</th>
+              <th>头条阅读平均量</th>
+              <th>单篇最高阅读量</th>
+              <th>详情</th>
+            </thead>
+            <tbody>
+              <tr v-for="o in 4">
+                <td>
+                  第一季度
+                </td>
+                <td>广东环保</td>
+                <td>23534534</td>
+                <td>312312</td>
+                <td>131231</td>
+                <td>23123</td>
+                <td>1321</td>
+                <td>
+                  <span class="detail">详情</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </el-card>
     </div>
@@ -74,9 +108,14 @@
 <script>
   export default {
     data() {
-      this.chartSettings = {
-        xAxisType: 'category',
-        boundaryGap: false,
+      this.chartExtend = {
+        xAxis: {
+          boundaryGap: false,
+          axisLabel: {
+            margin: 20,
+            fontSize: 14
+          }
+        }
       }
       return {
         chartData: {
@@ -85,7 +124,7 @@
               '日期': '第一季度',
               '访问用户': 1393,
               '下单用户': 1093,
-              '下单率': 0.32
+              '下单率': 1000
             },
             {
               '日期': '第二季度',
@@ -97,19 +136,19 @@
               '日期': '第三季度',
               '访问用户': 2923,
               '下单用户': 2623,
-              '下单率': 0.76
+              '下单率': 3000
             },
             {
               '日期': '第四季度',
               '访问用户': 1723,
               '下单用户': 1423,
-              '下单率': 0.49
+              '下单率': 500
             },
             {
               '日期': '2018-01-10',
               '访问用户': 3792,
               '下单用户': 3492,
-              '下单率': 0.323
+              '下单率': 1500
             },
             {
               '日期': '2018-01-20',
@@ -150,7 +189,7 @@
       };
     },
     created: function () {
-     
+
     },
     methods: {
       handleClick(tab, event) {
@@ -172,6 +211,16 @@
 </script>
 
 <style scoped lang="scss">
+  @mixin lvhfa {
+    &:link,
+    &:visited,
+    &:hover,
+    &:focus,
+    &:active {
+      outline: none;
+    }
+  }
+
   .container {
     header {
       margin: 56px 30px 0 30px;
@@ -191,6 +240,7 @@
         .searchW {
           margin-left: 70px;
           .search {
+            @include lvhfa;
             height: 32px;
             box-sizing: border-box;
             border: 1px solid #ccc;
@@ -200,6 +250,7 @@
             vertical-align: middle;
           }
           .searchBtn {
+            @include lvhfa;
             vertical-align: middle;
             height: 32px;
             padding: 0;
@@ -210,6 +261,9 @@
             background-color: #C91B1B;
             border: 0;
             border-radius: 0 4px 4px 0;
+            &:hover{
+                background: #ff0000;
+            }
           }
         }
       }
@@ -240,6 +294,36 @@
             .rank {
               color: #333;
               font-size: 24px;
+            }
+          }
+        }
+      }
+      .table-wrapper {
+        .table {
+          border-collapse: collapse;
+          width: 100%;
+          text-align: center;
+          thead {
+            th {
+              height: 60px;
+              line-height: 60px;
+              font-size: 14px;
+              color: #999;
+            }
+          }
+          tbody {
+            font-size: 14px;
+            padding: 0;
+            td {
+              height: 60px;
+              line-height: 60px;
+              border: 0;
+              padding: 0;
+            }
+            tr {
+              &:nth-child(odd) {
+                background: #F2F5F6;
+              }
             }
           }
         }
