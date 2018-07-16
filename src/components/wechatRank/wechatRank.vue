@@ -61,12 +61,12 @@
               </el-select>
             </div>
             <div class="right">
-              <el-select v-model="value" placeholder="请选择" size="small">
-                <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+              <el-select v-model="type" placeholder="请选择" size="small">
+                <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
               </el-select>
-              <el-select v-model="value" placeholder="请选择" size="small">
-                <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+              <el-select v-model="organ" placeholder="请选择" size="small">
+                <el-option v-for="item in organOptions" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
               </el-select>
               <div class="searchW">
@@ -112,144 +112,195 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        activeName2: 'first',
-        tableData1: [],
-        tableData2: [],
-        tableData: [],
-        tabPosition: 'left',
-        formInline: {
-          user: '',
-          region: ''
+export default {
+  data() {
+    return {
+      activeName2: "first",
+      year: null,
+      season: null,
+      tableData: [],
+      tabPosition: "left",
+      formInline: {
+        user: "",
+        region: ""
+      },
+      date: "",
+      radio: "阅读量",
+      options: [],
+      value: "",
+      organ: "机构名",
+      organOptions: [],
+      type: 0,
+      typeOptions: [
+        {
+          label: "广东省级部门",
+          value: 0
         },
-        date: '',
-        radio: "阅读量",
-        options: [{
-          value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
-        }],
-        value: ''
-      };
-    },
-    created(){
-      this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatOrgan",{"type":1}).then((res)=>{
+        {
+          label: "广东省21个地市",
+          value: 1
+        },
+        {
+          label: "广州市直部门",
+          value: 2
+        }
+      ]
+    };
+  },
+  created() {
+    this.$http
+      .post(
+        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason",
+        { mname: "wechat" }
+      )
+      .then(res => {
+        var res = res.data;
+        var dataTo = ["一", "二", "三", "四"];
+        res.map(item => {
+          this.options.push({
+            value: `${item.year}-${item.season}`,
+            label: `${item.year}年第${dataTo[item.season - 1]}季度`
+          });
+        });
+        this.value = this.options[0].value;
+        this.year = res[0].year;
+        this.season = res[0].season;
+      });
+    //  this.$http.post(
+    //       "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatOrgan",
+    //       { type: 0 }
+    //     )
+    //     .then(res => {
+    //       console.log(res);
+    //     });
+  },
+  watch: {
+    value: {
+      handler: function(val, oldVal) {
+        var yearNseason = this.value.split("-");
+        this.year = yearNseason[0];
+        this.season = yearNseason[1];
+        this.getwechatSummary(this.season,this.year)
+      },
+      immediate: true
+    }
+    // type: {
+    //   handler(val) {
+    //     this.$http
+    //       .post(
+    //         "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatOrgan",
+    //         { type: this.type }
+    //       )
+    //       .then(res => {
+    //         console.log(res);
+    //       });
+    //   },
+    //   immediate: true
+    // }
+  },
+  methods: {
+    getwechatSummary(season,year){
+      this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/summary",{"season":season,"year":year}).then((res)=>{
         console.log(res)
       })
     },
-    methods: {
-      handleClick(tab, event) {
-        console.log(tab, event);
-
-      },
-      onSubmit() {
-        console.log('submit!');
-      },
-      radioChange() {
-        console.log(this.radio)
-      }
+    handleClick(tab, event) {
+      console.log(tab, event);
+    },
+    onSubmit() {
+      console.log("submit!");
+    },
+    radioChange() {
+      console.log(this.radio);
     }
-  };
-
+  }
+};
 </script>
 
 <style scoped lang="scss">
-@import '../../assets/css/style.scss';
-  .container {
-    .allRank-header {
-      display: flex;
-      justify-content: space-between;
-    }
-    .selectBtn {
-      padding-top: 30px;
-      text-align: center;
-    }
-    .el-container {}
-    .cardWarp1 {
-      padding: 22px 30px;
-      .cardBox {
-        ul {
-          padding: 0;
-          margin: 0;
-          font-size: 0;
-          list-style: none;
-          display: flex;
-          justify-content: space-around;
-          li {
-            font-size: 16px;
-            .type {
-              font-size: 14px;
-              color: #666666;
-            }
-            .organization {
-              font-size: 18px;
-              color: #333;
-              font-weight: 600;
-            }
-            .num {
-              span {
-                color: #C91B1B;
-              }
-            }
-          }
-        }
-      }
-    }
-    .cardWarp2 {
-      padding: 22px 30px;
-      .cardHeader {
+@import "../../assets/css/style.scss";
+.container {
+  .allRank-header {
+    display: flex;
+    justify-content: space-between;
+  }
+  .selectBtn {
+    padding-top: 30px;
+    text-align: center;
+  }
+  .el-container {
+  }
+  .cardWarp1 {
+    padding: 22px 30px;
+    .cardBox {
+      ul {
+        padding: 0;
+        margin: 0;
+        font-size: 0;
+        list-style: none;
         display: flex;
-        justify-content: space-between;
-        .right{
-          display: flex;
-           .el-select {
-            margin-right: 10px;
+        justify-content: space-around;
+        li {
+          font-size: 16px;
+          .type {
+            font-size: 14px;
+            color: #666666;
           }
-          .searchW{
-            margin-left: 70px;
-           
-            .search{
-              height: 30px;
-              box-sizing: border-box;
-              border: 1px solid #ccc;
-              border-radius: 4px 0 0 4px;
-              margin:0;
-              padding: 0 10px;
-              vertical-align: middle;
-            }
-            .searchBtn{
-              vertical-align: middle;
-              height: 30px;
-              line-height: 30px;
-              padding: 0;
-              margin-left: -4px;
-              box-sizing: border-box;
-              padding:0 14px;
-              color:#fff;
-              background-color: #C91B1B;
-              border: 0;
-              border-radius: 0 4px 4px 0;
+          .organization {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+          }
+          .num {
+            span {
+              color: #c91b1b;
             }
           }
         }
-      }
-      .table-wrapper {
-        @include Mytable;
       }
     }
   }
+  .cardWarp2 {
+    padding: 22px 30px;
+    .cardHeader {
+      display: flex;
+      justify-content: space-between;
+      .right {
+        display: flex;
+        .el-select {
+          margin-right: 10px;
+        }
+        .searchW {
+          margin-left: 70px;
 
+          .search {
+            height: 30px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+            margin: 0;
+            padding: 0 10px;
+            vertical-align: middle;
+          }
+          .searchBtn {
+            vertical-align: middle;
+            height: 30px;
+            line-height: 30px;
+            padding: 0;
+            margin-left: -4px;
+            box-sizing: border-box;
+            padding: 0 14px;
+            color: #fff;
+            background-color: #c91b1b;
+            border: 0;
+            border-radius: 0 4px 4px 0;
+          }
+        }
+      }
+    }
+    .table-wrapper {
+      @include Mytable;
+    }
+  }
+}
 </style>

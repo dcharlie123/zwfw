@@ -1,49 +1,5 @@
 <template>
   <div class="container">
-    <!--- <header class="allRank-header">
-      <span class="title">总榜</span>
-      <div>
-        <el-button type="primary" plain>主要按钮</el-button>
-        <el-button type="primary" plain>主要按钮</el-button>
-        <el-button type="primary" plain>主要按钮</el-button>
-      </div>
-    </header>
-    <div>
-      <div>
-        <el-form>
-          <el-form-item label="">
-            <el-select v-model="form.region" placeholder="请选择活动区域">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-form>
-      </div>
-      <div>
-        <el-table :data="tableData1" style="width: 100%" class="t1">
-          <el-table-column prop="date" label="机构" width="180">
-          </el-table-column>
-          <el-table-column prop="name" label="微博号" width="180">
-          </el-table-column>
-          <el-table-column prop="address" label="排名">
-          </el-table-column>
-          <el-table-column prop="address" label="与上期对比升降名次">
-          </el-table-column>
-        </el-table>
-      </div>
-      <div>
-        <el-table :data="tableData2" style="width: 100%">
-          <el-table-column prop="date" label="机构" width="180">
-          </el-table-column>
-          <el-table-column prop="name" label="微信号" width="180">
-          </el-table-column>
-          <el-table-column prop="address" label="排名">
-          </el-table-column>
-          <el-table-column prop="address" label="与上期对比升降名次">
-          </el-table-column>
-        </el-table>
-      </div>
-    </div>-->
     <div class="selectBtn">
       <el-radio-group v-model="radio1" @change="radioChange">
         <el-radio-button label="广东省级部门"></el-radio-button>
@@ -54,7 +10,7 @@
     <div class="cardWarp">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <el-select v-model="value" placeholder="请选择" size="small">
+          <el-select v-model="value" placeholder="请选择" size="small" @blur="changeSeason">
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
@@ -67,51 +23,26 @@
               <th>排名</th>
               <th>与上期对比升降名次</th>
             </thead>
-            <tbody>
-              <tr>
-                <td>广东环保局</td>
-                <td>广东环保</td>
-                <td class="rankRadius top3">
-                  <span>1</span>
+            <tbody >
+              <tr v-if="!tableData.length">
+                <td colspan="4">暂无数据</td>
+              </tr>
+              <tr v-else v-for="item in tableData" >
+                <td>{{item.nature}}</td>
+                <td>{{item.name}}</td>
+                <td class="rankRadius" :class="{'top3':item.rank<=3}">
+                  <span>{{item.rank}}</span>
                 </td>
-                <td>
-                  <i></i>
-                  <span>1</span>
+                <td v-if="item.compare&&item.compare!=0" class="compare">
+                  <img src="../../assets/images/up.png" alt="" v-if="item.status==1">
+                  <img src="../../assets/images/down.png" alt="" v-else-if="item.status==0">
+                  <span>{{item.compare}}</span>
+                </td>
+                <td v-else>
+                  <span>-</span>
                 </td>
               </tr>
-              <tr>
-                <td>广东环保局</td>
-                <td>广东环保</td>
-                <td class="rankRadius top3">
-                  <span>2</span>
-                </td>
-                <td>
-                  <i></i>
-                  <span>1</span>
-                </td>
-              </tr>
-              <tr>
-                <td>广东环保局</td>
-                <td>广东环保</td>
-                <td class="rankRadius top3">
-                  <span>3</span>
-                </td>
-                <td>
-                  <i></i>
-                  <span>1</span>
-                </td>
-              </tr>
-              <tr>
-                <td>广东环保局</td>
-                <td>广东环保</td>
-                <td class="rankRadius">
-                  <span>4</span>
-                </td>
-                <td>
-                  <i></i>
-                  <span>1</span>
-                </td>
-              </tr>
+              
             </tbody>
           </table>
         </div>
@@ -121,107 +52,140 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        radio1: "广东省级部门",
-        type:0,
-        activeName2: 'first',
-        tableData1: [{
-          'date': "1",
-          "name": "aa",
-          "address": "bb"
-        }],
-        tableData2: [],
-        options: [],
-        value: ''
-      };
-    },
-    created() {
-      var season,year;
-      this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason",{"mname":"wechat"}).then((res) => {
+export default {
+  data() {
+    return {
+      radio1: "广东省级部门",
+      type: 0,
+      activeName2: "first",
+      tableData: [],
+      options: [],
+      value: "",
+      season: null,
+      year: null
+    };
+  },
+  created() {
+    var season, year;
+    this.$http
+      .post(
+        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason",
+        { mname: "wechat" }
+      )
+      .then(res => {
         var res = res.data;
-        var dataTo = ["一", '二', '三', '四']
-        res.map((item) => {
+        var dataTo = ["一", "二", "三", "四"];
+        res.map(item => {
           this.options.push({
             value: `${item.year}-${item.season}`,
-            label: `${item.year}年第${dataTo[item.season-1]}季度`
-          })
-        })
+            label: `${item.year}年第${dataTo[item.season - 1]}季度`
+          });
+        });
         this.value = this.options[0].value;
-        
-      })
-      console.log(season)
-      // this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechat",{""})
-    },
-    watch: {
-      value: {
-        handler: function (val, oldVal) {
-          
-        },
-        immediate: true
-      }
-    },
-    methods: {
-      getWechatData(){
-        
+        this.year = res[0].year;
+        this.season = res[0].season;
+      });
+    // this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechat",{""})
+  },
+  watch: {
+    value: {
+      handler: function(val, oldVal) {
+        var yearNseason=this.value.split('-');
+        this.year = yearNseason[0];
+        this.season = yearNseason[1];
+        this.getWechatData(this.season, this.year, this.type).then(res => {
+          if (res.data !== "null") {
+            this.tableData = res.data;
+          }else{
+            this.tableData=[]
+          }
+        });
       },
-      handleClick(tab, event) {
-        console.log(tab, event);
-      },
-      select(i) {
-        console.log(i)
-      },
-      radioChange(val) {
-        if(val=="广东省级部门"){
-          this.type=0
-        }else if(val=="广东省21个地市"){
-          this.type=1
-        }else if(val=="广州市直部门"){
-          this.type=2
-        }
-      }
+      immediate: true
     }
-  };
-
+  },
+  methods: {
+    getWechatData(season, year, type) {
+      return this.$http.post(
+        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechat",
+        { season: season, year: year, type: type }
+      );
+    },
+    handleClick(tab, event) {
+      console.log(tab, event);
+    },
+    select(i) {
+      console.log(i);
+    },
+    radioChange(val) {
+      if (val == "广东省级部门") {
+        this.type = 0;
+      } else if (val == "广东省21个地市") {
+        this.type = 1;
+      } else if (val == "广州市直部门") {
+        this.type = 2;
+      }
+      this.value = this.options[0].value;
+      var yearNseason = this.options[0].value.split("-");
+      this.year = yearNseason[0];
+      this.season = yearNseason[1];
+      this.getWechatData(this.season, this.year, this.type).then(res => {
+        console.log(res);
+      });
+    },
+    changeSeason(val) {
+      console.log(val);
+    }
+  }
+};
 </script>
 
 <style lang="scss" scoped>
-  @import '../../assets/css/style.scss';
-  .container {}
+@import "../../assets/css/style.scss";
+.container {
+}
 
-  .selectBtn {
-    text-align: center;
-    padding-top: 30px;
-  }
+.selectBtn {
+  text-align: center;
+  padding-top: 30px;
+}
 
-  .el-card__body {
-    .table-wrapper {
-      @include Mytable;
-      .rankRadius {
+.el-card__body {
+  .table-wrapper {
+    @include Mytable;
+    .rankRadius {
+      span {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        border: 1px solid #ccc;
+        color: #333;
+        border-radius: 50%;
+        text-align: center;
+      }
+      &.top3 {
         span {
-          display: inline-block;
-          width: 40px;
-          height: 40px;
-          line-height: 40px;
-          border: 1px solid #ccc;
-          color: #333;
-          border-radius: 50%;
-          text-align: center;
-        }
-        &.top3 {
-          span {
-            border: 1px solid rgba(255, 163, 51, 1);
-            color: rgba(255, 163, 51, 1);
-          }
+          border: 1px solid rgba(255, 163, 51, 1);
+          color: rgba(255, 163, 51, 1);
         }
       }
     }
+    .compare{
+      img{
+        width:13px;
+        height: 14px;
+        margin-right: 4px;
+      }
+      span{
+        font-size: 16px;
+        color: #333;
+      }
+    }
   }
+}
 
-
-  .cardWarp {
-    padding: 22px 30px;
-  }
-
+.cardWarp {
+  padding: 22px 30px;
+}
 </style>
