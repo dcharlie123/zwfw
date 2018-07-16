@@ -145,9 +145,15 @@
         value: ''
       };
     },
+    created(){
+      this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatOrgan",{"type":1}).then((res)=>{
+        console.log(res)
+      })
+    },
     methods: {
       handleClick(tab, event) {
         console.log(tab, event);
+
       },
       onSubmit() {
         console.log('submit!');

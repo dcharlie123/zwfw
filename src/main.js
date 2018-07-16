@@ -6,12 +6,14 @@ import './assets/css/style.scss'
 import {Card, Option, RadioButton, RadioGroup, Select} from 'element-ui';
 
 import App from './App'
+import Resource from 'vue-resource'
 import VeLine from 'v-charts/lib/line.common'
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import router from './router'
 
+Vue.use(Resource)
 Vue.config.productionTip = false
 // Vue.use(Form);
 // Vue.use(FormItem);
@@ -21,6 +23,7 @@ Vue.use(Option);
 Vue.use(RadioButton);
 Vue.use(RadioGroup);
 Vue.component(VeLine.name, VeLine)
+Vue.http.options.emulateJSON = true;
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

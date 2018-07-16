@@ -45,7 +45,7 @@
       </div>
     </div>-->
     <div class="selectBtn">
-      <el-radio-group v-model="radio1">
+      <el-radio-group v-model="radio1" @change="radioChange">
         <el-radio-button label="广东省级部门"></el-radio-button>
         <el-radio-button label="广东省21个地市"></el-radio-button>
         <el-radio-button label="广州市直部门"></el-radio-button>
@@ -125,6 +125,7 @@
     data() {
       return {
         radio1: "广东省级部门",
+        type:0,
         activeName2: 'first',
         tableData1: [{
           'date': "1",
@@ -132,31 +133,53 @@
           "address": "bb"
         }],
         tableData2: [],
-        options: [{
-          value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
-        }],
+        options: [],
         value: ''
       };
     },
+    created() {
+      var season,year;
+      this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason",{"mname":"wechat"}).then((res) => {
+        var res = res.data;
+        var dataTo = ["一", '二', '三', '四']
+        res.map((item) => {
+          this.options.push({
+            value: `${item.year}-${item.season}`,
+            label: `${item.year}年第${dataTo[item.season-1]}季度`
+          })
+        })
+        this.value = this.options[0].value;
+        
+      })
+      console.log(season)
+      // this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechat",{""})
+    },
+    watch: {
+      value: {
+        handler: function (val, oldVal) {
+          
+        },
+        immediate: true
+      }
+    },
     methods: {
+      getWechatData(){
+        
+      },
       handleClick(tab, event) {
         console.log(tab, event);
       },
       select(i) {
         console.log(i)
+      },
+      radioChange(val) {
+        if(val=="广东省级部门"){
+          this.type=0
+        }else if(val=="广东省21个地市"){
+          this.type=1
+        }else if(val=="广州市直部门"){
+          this.type=2
+        }
       }
     }
   };

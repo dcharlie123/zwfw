@@ -28,7 +28,9 @@
       }
     },
     created() {
-      
+      // this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechat",{season:1,year:2018,type:0}).then((res)=>{
+      //   console.log(res)
+      // })
       var View = this.$route.name||this.$route.params.type;
       switch (View) {
         case "allRank":
