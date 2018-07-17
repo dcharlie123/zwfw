@@ -47,8 +47,8 @@ module.exports = {
 
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsSubDirectory: 'ndzw/static',
+    assetsPublicPath: '__PUBLIC__',
 
     /**
      * Source Maps

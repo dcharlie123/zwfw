@@ -4,7 +4,8 @@
       <el-radio-group v-model="radio" @change="radioChange">
         <el-radio-button label="阅读量"></el-radio-button>
         <el-radio-button label="点赞量"></el-radio-button>
-        <el-radio-button label="评论量"></el-radio-button>
+        <el-radio-button label="发稿量"></el-radio-button>
+        <el-radio-button label="记者评价榜"></el-radio-button>
         <!--<el-radio-button label="发稿量"></el-radio-button>
         <el-radio-button label="媒体评价"></el-radio-button>-->
       </el-radio-group>
@@ -15,38 +16,75 @@
           整体概况
         </div>
         <div class="cardBox">
-          <ul>
-            <li>
-              <p class="type">总阅读量最多</p>
-              <p class="organization">广东省环保局</p>
+          <ul v-if="Object.keys(summary).length">
+            <li v-if="summary.avg_read">
+              <p class="type">平均阅读量</p>
+              <p class="organization">{{summary.avg_read.name}}</p>
               <p class="num">
-                <span>314</span>次</p>
+                <span>{{summary.avg_read.avg_read}}</span>次</p>
             </li>
-            <li>
-              <p class="type">总阅读量最多</p>
-              <p class="organization">广东省环保局</p>
+            <li v-if="summary.head_like">
+              <p class="type">首页点赞</p>
+              <p class="organization">{{summary.head_like.name}}</p>
               <p class="num">
-                <span>314</span>次</p>
+                <span>{{summary.head_like.head_like}}</span>次</p>
             </li>
-            <li>
-              <p class="type">总阅读量最多</p>
-              <p class="organization">广东省环保局</p>
+            <li v-if="summary.head_read">
+              <p class="type">头条阅读总量</p>
+              <p class="organization">{{summary.head_read.name}}</p>
               <p class="num">
-                <span>314</span>次</p>
+                <span>{{summary.head_read.head_read}}</span>次</p>
             </li>
-            <li>
-              <p class="type">总阅读量最多</p>
-              <p class="organization">广东省环保局</p>
+            <li v-if="summary.pushnum">
+              <p class="type">推送次数</p>
+              <p class="organization">{{summary.pushnum.name}}</p>
               <p class="num">
-                <span>314</span>次</p>
+                <span>{{summary.pushnum.pushnum}}</span>次</p>
             </li>
-            <li>
-              <p class="type">总阅读量最多</p>
-              <p class="organization">广东省环保局</p>
+            <li v-if="summary.sending_num">
+              <p class="type">发文数</p>
+              <p class="organization">{{summary.sending_num.name}}</p>
               <p class="num">
-                <span>314</span>次</p>
+                <span>{{summary.sending_num.sending_num}}</span>次</p>
+            </li>
+            <li v-if="summary.single_read">
+              <p class="type">单篇最高阅读</p>
+              <p class="organization">{{summary.single_read.name}}</p>
+              <p class="num">
+                <span>{{summary.single_read.single_read}}</span>次</p>
+            </li>
+            <li v-if="summary.total_read">
+              <p class="type">总阅读数</p>
+              <p class="organization">{{summary.total_read.name}}</p>
+              <p class="num">
+                <span>{{summary.total_read.total_read}}</span>次</p>
+            </li>
+            <li v-if="summary.affinity">
+              <p class="type">文风亲和力</p>
+              <p class="organization">{{summary.affinity.name}}</p>
+              <p class="num">
+                <span>{{summary.affinity.affinity}}</span>次</p>
+            </li>
+            <li v-if="summary.consensus">
+              <p class="type">舆情应对</p>
+              <p class="organization">{{summary.consensus.name}}</p>
+              <p class="num">
+                <span>{{summary.consensus.consensus}}</span>次</p>
+            </li>
+            <li v-if="summary.information">
+              <p class="type">信息公开</p>
+              <p class="organization">{{summary.information.name}}</p>
+              <p class="num">
+                <span>{{summary.information.information}}</span>次</p>
+            </li>
+            <li v-if="summary.media">
+              <p class="type">媒体评价</p>
+              <p class="organization">{{summary.media.name}}</p>
+              <p class="num">
+                <span>{{summary.media.media}}</span>次</p>
             </li>
           </ul>
+          <div v-else>暂无数据</div>
         </div>
       </el-card>
     </div>
@@ -79,28 +117,61 @@
         <div class="table-wrapper">
           <table class="table" border="0">
             <thead>
-              <th>排名</th>
-              <th>机构号</th>
-              <th>总阅读量</th>
-              <th>平均阅读量</th>
-              <th>头条阅读量</th>
-              <th>头条阅读平均量</th>
-              <th>单篇最高阅读量</th>
+              <th v-for="item in tableHeader">{{item}}</th>
               <th>详情</th>
             </thead>
             <tbody>
-              <tr v-for="o in 4">
+              <tr v-for="(item,index) in tableData" v-if='field == "read"'>
                 <td>
-                  <span class="rank" :class="o<=3 ?'top3':''">{{o}}</span>
+                  <span class="rank" :class="index+1<=3 ?'top3':''">{{index+1}}</span>
                 </td>
-                <td>广东环保</td>
-                <td>23534534</td>
-                <td>312312</td>
-                <td>131231</td>
-                <td>23123</td>
-                <td>1321</td>
+                <td>{{item.nature}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.avg_read?item.avg_read:'-'}}</td>
+                <td>{{item.head_read?item.head_read:'-'}}</td>
+                <td>{{item.single_read?item.single_read:'-'}}</td>
+                <td>{{item.total_read?item.total_read:'-'}}</td>
                 <td>
-                  <span class="detail">详情</span>
+                  <span class="detail" :data-year="item.year" :data-season="item.season" :data-name="item.name" @click="goDetail">详情</span>
+                </td>
+              </tr>
+              <tr v-for="(item,index) in tableData" v-if='field == "like"'>
+                <td>
+                  <span class="rank" :class="index+1<=3 ?'top3':''">{{index+1}}</span>
+                </td>
+                <td>{{item.nature}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.avg_like?item.avg_like:'-'}}</td>
+                <td>{{item.head_like?item.head_like:'-'}}</td>
+                <td>{{item.like?item.like:'-'}}</td>
+                <td>
+                  <span class="detail" :data-year="item.year" :data-season="item.season">详情</span>
+                </td>
+              </tr>
+              <tr v-for="(item,index) in tableData" v-if='field == "send"'>
+                <td>
+                  <span class="rank" :class="index+1<=3 ?'top3':''">{{index+1}}</span>
+                </td>
+                <td>{{item.nature}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.pushnum?item.pushnum:'-'}}</td>
+                <td>{{item.sending_num?item.sending_num:'-'}}</td>
+                <td>
+                  <span class="detail" :data-year="item.year" :data-season="item.season">详情</span>
+                </td>
+              </tr>
+              <tr v-for="(item,index) in tableData" v-if='field == "score"'>
+                <td>
+                  <span class="rank" :class="index+1<=3 ?'top3':''">{{index+1}}</span>
+                </td>
+                <td>{{item.nature}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.affinity?item.affinity:"-"}}</td>
+                <td>{{item.consensus?item.consensus:'-'}}</td>
+                <td>{{item.information?item.information:'-'}}</td>
+                <td>{{item.media?item.media:'-'}}</td>
+                <td>
+                  <span class="detail" :data-year="item.year" :data-season="item.season">详情</span>
                 </td>
               </tr>
             </tbody>
@@ -112,195 +183,286 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      activeName2: "first",
-      year: null,
-      season: null,
-      tableData: [],
-      tabPosition: "left",
-      formInline: {
-        user: "",
-        region: ""
-      },
-      date: "",
-      radio: "阅读量",
-      options: [],
-      value: "",
-      organ: "机构名",
-      organOptions: [],
-      type: 0,
-      typeOptions: [
-        {
-          label: "广东省级部门",
-          value: 0
+  export default {
+    data() {
+      return {
+        tableHeader: ["排名", "机构", "微信号", "头条阅读量", "平均阅读量", "单篇最高阅读", "总阅读数"],
+        activeName2: "first",
+        year: null,
+        season: null,
+        tableData: [],
+        tabPosition: "left",
+        formInline: {
+          user: "",
+          region: ""
         },
-        {
-          label: "广东省21个地市",
-          value: 1
-        },
-        {
-          label: "广州市直部门",
-          value: 2
-        }
-      ]
-    };
-  },
-  created() {
-    this.$http
-      .post(
-        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason",
-        { mname: "wechat" }
-      )
-      .then(res => {
-        var res = res.data;
-        var dataTo = ["一", "二", "三", "四"];
-        res.map(item => {
-          this.options.push({
-            value: `${item.year}-${item.season}`,
-            label: `${item.year}年第${dataTo[item.season - 1]}季度`
+        date: "",
+        radio: "阅读量",
+        field: "read",
+        options: [],
+        value: "",
+        organ: "机构名",
+        organOptions: [],
+        type: 0,
+        typeOptions: [{
+            label: "省直",
+            value: 0
+          },
+          {
+            label: "市直",
+            value: 1
+          },
+          {
+            label: "地级市",
+            value: 2
+          }
+        ],
+        summary: {},
+
+      };
+    },
+    created() {
+      this.$http
+        .post(
+          "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason", {
+            mname: "wechat"
+          }
+        )
+        .then(res => {
+          var res = res.data;
+          var dataTo = ["一", "二", "三", "四"];
+          res.map(item => {
+            this.options.push({
+              value: `${item.year}-${item.season}`,
+              label: `${item.year}年第${dataTo[item.season - 1]}季度`
+            });
           });
+          this.value = this.options[0].value;
+          this.year = res[0].year;
+          this.season = res[0].season;
         });
-        this.value = this.options[0].value;
-        this.year = res[0].year;
-        this.season = res[0].season;
-      });
-    //  this.$http.post(
-    //       "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatOrgan",
-    //       { type: 0 }
-    //     )
-    //     .then(res => {
-    //       console.log(res);
-    //     });
-  },
-  watch: {
-    value: {
-      handler: function(val, oldVal) {
-        var yearNseason = this.value.split("-");
-        this.year = yearNseason[0];
-        this.season = yearNseason[1];
-        this.getwechatSummary(this.season,this.year)
+
+    },
+    watch: {
+      value: {
+        handler: function (val, oldVal) {
+          if (this.season && this.year) {
+            var yearNseason = this.value.split("-");
+            this.year = yearNseason[0];
+            this.season = yearNseason[1];
+            
+            this.getwechatSummary(this.season, this.year,this.field).then((res) => {
+              this.summary={};
+              this.summary = res.data;
+              console.log(res);
+
+            })
+            if (!this.tableData.length || this.tableData != "false") {
+              this.getwechatData(this.season, this.year, this.field).then((res) => {
+                this.tableData = res.data;
+              })
+            }
+          }
+        },
+        immediate: true
       },
-      immediate: true
+      type: {
+        handler(val) {
+          if (this.type == 0 || this.type == 1 || this.type == 2) {
+            this.getOrgan(this.type).then((res) => {
+              this.organOptions = [];
+              res.data.map((item) => {
+                this.organOptions.push({
+                  label: item.nature,
+                  value: item.nature
+                });
+              })
+            })
+          }
+
+        },
+        immediate: true
+      },
+      field: {
+        handler(val) {
+          setTimeout(() => {
+           this.getwechatSummary(this.season, this.year,this.field).then((res) => {
+              this.summary={};
+              this.summary = res.data;
+            })
+            this.getwechatData(this.season, this.year, this.field).then((res) => {
+              this.tableData = res.data;
+              console.log(this.tableData);
+            })
+          })
+        },
+        immediate: true
+      },
+      organ(val) {
+        this.getwechatData(this.season, this.year, this.field,{}).then((res) => {
+          this.tableData = res.data;
+        })
+      }
+    },
+    methods: {
+      goDetail(ev) {
+        var dataset = ev.target.dataset;
+        // this.$router.push({ name: 'detail', params: {Otype:"wechatRank",season:dataset.season,year:dataset.year,name:escape(dataset.name)}})
+      },
+      getOrgan(type) {
+        return this.$http.post(
+          "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getOrgan", {
+            mname: 'wechat',
+            type: type
+          }
+        )
+      },
+      getwechatSummary(season, year,field) {
+        return this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/summary", {
+          "season": season,
+          "year": year,
+          "field":field
+        })
+      },
+      getwechatData(season, year, field, otherOptions) {
+        var options = {
+          "season": season,
+          "year": year,
+          "field": field
+        };
+        Object.assign(options, otherOptions);
+        // if (name) {
+        //   Object.assign(options, {
+        //     "name": name
+        //   })
+        // } else if (organ) {
+        //   Object.assign(options, {
+        //     "organ": organ
+        //   })
+        // } else if (organ && name) {
+        //   Object.assign(options, {
+        //     "name": name,
+        //     "organ": organ
+        //   })
+        // }
+        return this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatData",
+          options)
+      },
+      handleClick(tab, event) {
+        console.log(tab, event);
+      },
+      onSubmit() {
+        console.log("submit!");
+      },
+      radioChange() {
+        switch (this.radio) {
+          case '阅读量':
+            this.field = "read";
+            this.tableHeader = ["排名", "机构", "微信号", "头条阅读量", "平均阅读量", "单篇最高阅读", "总阅读数"]
+            break;
+          case '点赞量':
+            this.field = "like";
+            this.tableHeader = ["排名", "机构", "微信号", "平均点赞", "首页点赞", "首页点赞"]
+            break;
+          case '发稿量':
+            this.field = "send";
+            this.tableHeader = ["排名", "机构", "微信号", "推送数", "发文数"]
+            break;
+          case '记者评价榜':
+            this.field = "score";
+            this.tableHeader = ["排名", "机构", "微信号", "文风亲和力", "舆情应对", "信息公开", "媒体评价"]
+            break;
+        }
+      }
     }
-    // type: {
-    //   handler(val) {
-    //     this.$http
-    //       .post(
-    //         "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatOrgan",
-    //         { type: this.type }
-    //       )
-    //       .then(res => {
-    //         console.log(res);
-    //       });
-    //   },
-    //   immediate: true
-    // }
-  },
-  methods: {
-    getwechatSummary(season,year){
-      this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/summary",{"season":season,"year":year}).then((res)=>{
-        console.log(res)
-      })
-    },
-    handleClick(tab, event) {
-      console.log(tab, event);
-    },
-    onSubmit() {
-      console.log("submit!");
-    },
-    radioChange() {
-      console.log(this.radio);
-    }
-  }
-};
+  };
+
 </script>
 
 <style scoped lang="scss">
-@import "../../assets/css/style.scss";
-.container {
-  .allRank-header {
-    display: flex;
-    justify-content: space-between;
-  }
-  .selectBtn {
-    padding-top: 30px;
-    text-align: center;
-  }
-  .el-container {
-  }
-  .cardWarp1 {
-    padding: 22px 30px;
-    .cardBox {
-      ul {
-        padding: 0;
-        margin: 0;
-        font-size: 0;
-        list-style: none;
-        display: flex;
-        justify-content: space-around;
-        li {
-          font-size: 16px;
-          .type {
-            font-size: 14px;
-            color: #666666;
-          }
-          .organization {
-            font-size: 18px;
-            color: #333;
-            font-weight: 600;
-          }
-          .num {
-            span {
-              color: #c91b1b;
+  @import "../../assets/css/style.scss";
+  .container {
+    .allRank-header {
+      display: flex;
+      justify-content: space-between;
+    }
+    .selectBtn {
+      padding-top: 30px;
+      text-align: center;
+    }
+    .el-container {}
+    .cardWarp1 {
+      padding: 22px 30px;
+      .cardBox {
+        ul {
+          padding: 0;
+          margin: 0;
+          font-size: 0;
+          list-style: none;
+          display: flex;
+          justify-content: space-around;
+          li {
+            font-size: 16px;
+            .type {
+              font-size: 14px;
+              color: #666666;
+            }
+            .organization {
+              font-size: 18px;
+              color: #333;
+              font-weight: 600;
+            }
+            .num {
+              span {
+                color: #c91b1b;
+              }
             }
           }
         }
       }
     }
-  }
-  .cardWarp2 {
-    padding: 22px 30px;
-    .cardHeader {
-      display: flex;
-      justify-content: space-between;
-      .right {
+    .cardWarp2 {
+      padding: 22px 30px;
+      .cardHeader {
         display: flex;
-        .el-select {
-          margin-right: 10px;
-        }
-        .searchW {
-          margin-left: 70px;
-
-          .search {
-            height: 30px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px 0 0 4px;
-            margin: 0;
-            padding: 0 10px;
-            vertical-align: middle;
+        justify-content: space-between;
+        .right {
+          display: flex;
+          .el-select {
+            margin-right: 10px;
           }
-          .searchBtn {
-            vertical-align: middle;
-            height: 30px;
-            line-height: 30px;
-            padding: 0;
-            margin-left: -4px;
-            box-sizing: border-box;
-            padding: 0 14px;
-            color: #fff;
-            background-color: #c91b1b;
-            border: 0;
-            border-radius: 0 4px 4px 0;
+          .searchW {
+            margin-left: 70px;
+
+            .search {
+              height: 30px;
+              box-sizing: border-box;
+              border: 1px solid #ccc;
+              border-radius: 4px 0 0 4px;
+              margin: 0;
+              padding: 0 10px;
+              vertical-align: middle;
+            }
+            .searchBtn {
+              vertical-align: middle;
+              height: 30px;
+              line-height: 30px;
+              padding: 0;
+              margin-left: -4px;
+              box-sizing: border-box;
+              padding: 0 14px;
+              color: #fff;
+              background-color: #c91b1b;
+              border: 0;
+              border-radius: 0 4px 4px 0;
+            }
           }
         }
       }
-    }
-    .table-wrapper {
-      @include Mytable;
+      .table-wrapper {
+        @include Mytable;
+      }
     }
   }
-}
+
 </style>

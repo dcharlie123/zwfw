@@ -1,21 +1,12 @@
 <template>
   <div class="container">
-    <!--<div class="selectBtn">
-      <el-radio-group v-model="radio" @change="radioChange">
-        <el-radio-button label="阅读量"></el-radio-button>
-        <el-radio-button label="点赞量"></el-radio-button>
-        <el-radio-button label="评论量"></el-radio-button>
-        <el-radio-button label="发稿量"></el-radio-button>
-        <el-radio-button label="媒体评价"></el-radio-button>
-      </el-radio-group>
-    </div>-->
-    <div class="cardWarp1">
+    <!--<div class="cardWarp1">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           整体概况
         </div>
         <div class="cardBox">
-          <ul>
+          <ul v-if="summary">
             <li>
               <p class="type">总阅读量最多</p>
               <p class="organization">广东省环保局</p>
@@ -67,7 +58,7 @@
           </ul>
         </div>
       </el-card>
-    </div>
+    </div>-->
     <div class="cardWarp2">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
@@ -79,12 +70,12 @@
               </el-select>
             </div>
             <div class="right">
-              <el-select v-model="value" placeholder="请选择" size="small">
-                <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+              <el-select v-model="type" placeholder="请选择" size="small">
+                <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
               </el-select>
-              <el-select v-model="value" placeholder="请选择" size="small">
-                <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+              <el-select v-model="organ" placeholder="请选择" size="small">
+                <el-option v-for="item in organOptions" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
               </el-select>
               <div class="searchW">
@@ -99,24 +90,24 @@
             <thead>
               <th>排名</th>
               <th>机构号</th>
-              <th>总阅读量</th>
-              <th>平均阅读量</th>
-              <th>头条阅读量</th>
-              <th>头条阅读平均量</th>
-              <th>单篇最高阅读量</th>
+              <th>平均点赞</th>
+              <th>粉丝</th>
+              <th>关注数</th>
+              <th>点赞数</th>
+              <th>发博数</th>
               <th>详情</th>
             </thead>
             <tbody>
-              <tr v-for="o in 4">
+              <tr v-for="(item,index) in tableData.data">
                 <td>
-                  <span class="rank" :class="o<=3 ?'top3':''">{{o}}</span>
+                  <span class="rank" :class="index+1<=3 ?'top3':''">{{index+1}}</span>
                 </td>
-                <td>广东环保</td>
-                <td>23534534</td>
-                <td>312312</td>
-                <td>131231</td>
-                <td>23123</td>
-                <td>1321</td>
+                <td>{{item.name}}</td>
+                <td>{{item.avg_like}}</td>
+                <td>{{item.fans}}</td>
+                <td>{{item.follow}}</td>
+                <td>{{item.like}}</td>
+                <td>{{item.weibo}}</td>
                 <td>
                   <span class="detail">详情</span>
                 </td>
@@ -133,38 +124,109 @@
   export default {
     data() {
       return {
-        activeName2: 'first',
-        tableData1: [],
-        tableData2: [],
         tableData: [],
         tabPosition: 'left',
-        formInline: {
-          user: '',
-          region: ''
-        },
         date: '',
-        radio: "阅读量",
-        options: [{
-          value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
-        }],
-        value: ''
+        options: [],
+        value: "",
+        organ: "机构名",
+        organOptions: [],
+        type: 0,
+        typeOptions: [{
+            label: "省直",
+            value: 0
+          },
+          {
+            label: "市直",
+            value: 1
+          },
+          {
+            label: "地级市",
+            value: 2
+          }
+        ],
+        year:'',
+        season:'',
+        summary:{}
       };
     },
-    
+    watch: {
+      value: {
+        handler: function (val, oldVal) {
+          if (this.season && this.year) {
+            var yearNseason = this.value.split("-");
+            this.year = yearNseason[0];
+            this.season = yearNseason[1];
+            if (!this.tableData.length && this.tableData != "false") {
+              this.getweiboData(this.season, this.year).then((res) => {
+                this.tableData = res.data;
+                console.log(this.tableData)
+              })
+            }
+          }
+        },
+        immediate: true
+      },
+      type: {
+        handler(val) {
+          if (this.type == 0 || this.type == 1 || this.type == 2) {
+            this.getOrgan(this.type).then((res) => {
+              this.organOptions = [];
+              if (res.data!=='null') {
+                res.data.map((item) => {
+                  this.organOptions.push({
+                    label: item.nature,
+                    value: item.nature
+                  });
+                })
+              }
+            })
+          }
+
+        },
+        immediate: true
+      },
+    },
+    created() {
+      this.$http
+        .post(
+          "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason", {
+            mname: "weibo"
+          }
+        )
+        .then(res => {
+          var res = res.data;
+          var dataTo = ["一", "二", "三", "四"];
+          res.map(item => {
+            this.options.push({
+              value: `${item.year}-${item.season}`,
+              label: `${item.year}年第${dataTo[item.season - 1]}季度`
+            });
+          });
+          this.value = this.options[0].value;
+          this.year = res[0].year;
+          this.season = res[0].season;
+        });
+        
+    },
     methods: {
+      getOrgan(type) {
+        return this.$http.post(
+          "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getOrgan", {
+            mname: 'weibo',
+            type: type
+          }
+        )
+      },
+      getweiboData(season, year, otherOptions) {
+        var options = {
+          "season": season,
+          "year": year
+        };
+        Object.assign(options,otherOptions);
+        return this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWeibo",
+          options)
+      },
       handleClick(tab, event) {
         console.log(tab, event);
       },
@@ -180,7 +242,7 @@
 </script>
 
 <style scoped lang="scss">
-@import '../../assets/css/style.scss';
+  @import '../../assets/css/style.scss';
   .container {
     .allRank-header {
       display: flex;
@@ -262,7 +324,7 @@
         }
       }
       .table-wrapper {
-       @include Mytable;
+        @include Mytable;
       }
     }
   }

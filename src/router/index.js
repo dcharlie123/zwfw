@@ -62,7 +62,7 @@ export default new Router({
           component: weiboRank
         },
         {
-          path: "detail/:type/:id",
+          path: "detail/:Otype/:season/:year/:name",
           name: "detail",
           component: detail
         }

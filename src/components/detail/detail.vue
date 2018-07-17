@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <header>
-      <h1 class="organization">广州环保局</h1>
+      <h1 class="organization">{{name}}</h1>
       <div class="right">
         <el-select v-model="value" placeholder="请选择" size="small">
           <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
@@ -21,9 +21,9 @@
       <el-radio-group v-model="radio" @change="radioChange">
         <el-radio-button label="阅读量"></el-radio-button>
         <el-radio-button label="点赞量"></el-radio-button>
-        <el-radio-button label="评论量"></el-radio-button>
+        <!--<el-radio-button label="评论量"></el-radio-button>-->
         <el-radio-button label="发稿量"></el-radio-button>
-        <el-radio-button label="媒体评价"></el-radio-button>
+        <!--<el-radio-button label="媒体评价"></el-radio-button>-->
       </el-radio-group>
     </div>
     <div class="cardWarp1">
@@ -63,8 +63,7 @@
           趋势图
         </div>
         <div>
-          <ve-line :data="chartData" :extend="chartExtend" :after-config="afterConfig"></ve-line>
-
+          <ve-line :data="chartData" :extend="chartExtend" :after-config="afterConfig" :data-empty="dataEmpty"></ve-line>
         </div>
       </el-card>
     </div>
@@ -119,54 +118,13 @@
       }
       return {
         chartData: {
-          columns: ['日期', '访问用户', '下单用户', '下单率'],
-          rows: [{
-              '日期': '第一季度',
-              '访问用户': 1393,
-              '下单用户': 1093,
-              '下单率': 1000
-            },
-            {
-              '日期': '第二季度',
-              '访问用户': 3530,
-              '下单用户': 3230,
-              '下单率': 0.26
-            },
-            {
-              '日期': '第三季度',
-              '访问用户': 2923,
-              '下单用户': 2623,
-              '下单率': 3000
-            },
-            {
-              '日期': '第四季度',
-              '访问用户': 1723,
-              '下单用户': 1423,
-              '下单率': 500
-            },
-            {
-              '日期': '2018-01-10',
-              '访问用户': 3792,
-              '下单用户': 3492,
-              '下单率': 1500
-            },
-            {
-              '日期': '2018-01-20',
-              '访问用户': 4593,
-              '下单用户': 4293,
-              '下单率': 0.78
-            }
-          ]
+          columns: [],
+          rows: []
         },
+        dataEmpty: true,
         activeName2: 'first',
-        tableData1: [],
-        tableData2: [],
-        tableData: [],
+        tableData: {},
         tabPosition: 'left',
-        formInline: {
-          user: '',
-          region: ''
-        },
         date: '',
         radio: "阅读量",
         options: [{
@@ -185,13 +143,44 @@
           value: '选项5',
           label: '北京烤鸭'
         }],
-        value: ''
+        value: '',
+        name: "",
+        year: '',
+        season: '',
+        field: 'read',
+        Otype: "",
+        tableHeader: []
       };
     },
     created: function () {
-
+      this.name = unescape(this.$route.params.name);
+      this.year = this.$route.params.year;
+      this.season = this.$route.params.season;
+      this.Otype = this.$route.params.Otype;
+      this.getWechatCompany({
+        name: this.name,
+        year: this.year,
+        season: this.season,
+        field: this.field
+      }).then((res) => {
+        this.tableData = res.data;
+        // console.log(this.tableData);
+        this.dealChartData(this.tableData.data)
+      })
+    },
+    watch: {
+      field: {
+        handler(val) {
+          console.log(val)
+        },
+        immediate: true
+      }
     },
     methods: {
+      getWechatCompany(options) {
+        return this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatCompany",
+          options)
+      },
       handleClick(tab, event) {
         console.log(tab, event);
       },
@@ -199,12 +188,61 @@
         console.log('submit!');
       },
       radioChange() {
-        console.log(this.radio)
+        switch (this.radio) {
+          case '阅读量':
+            this.field = "read";
+            this.tableHeader = ["头条阅读量", "平均阅读量", "单篇最高阅读", "总阅读数"]
+            break;
+          case '点赞量':
+            this.field = "like";
+            this.tableHeader = ["平均点赞", "首页点赞", "首页点赞"]
+            break;
+          case '发稿量':
+            this.field = "send";
+            this.tableHeader = ["推送数", "发文数"]
+            break;
+        }
       },
       afterConfig(options) {
         options.legend.y = 'bottom'
         return options
-      }
+      },
+      obj2key(obj, keys) {
+        var n = keys.length,
+          key = [];
+        while (n--) {
+          key.push(obj[keys[n]]);
+        }
+        return key.join('|');
+      },
+      uniqeByKeys(array, keys) {
+        var arr = [];
+        var hash = {};
+        for (var i = 0, j = array.length; i < j; i++) {
+          var k = this.obj2key(array[i], keys);
+          if (!(k in hash)) {
+            hash[k] = true;
+            arr.push(array[i]);
+          }
+        }
+        return arr;
+      },
+      dealChartData(data) {
+        var dealData = [],
+          columns = [],
+          dataArr=[];
+        columns.push("date");
+        for (var key1 of Object.entries(data)) {
+          // var row = {};
+          // row["date"] = key1[0];
+          // columns.push(row);
+          // console.log(key1[0])
+          for(var key2 in key1[1]){
+            console.log(key2)
+          }
+        }
+        // console.log(data);
+      } 
     }
   };
 
@@ -261,8 +299,8 @@
             background-color: #C91B1B;
             border: 0;
             border-radius: 0 4px 4px 0;
-            &:hover{
-                background: #ff0000;
+            &:hover {
+              background: #ff0000;
             }
           }
         }

@@ -1,7 +1,10 @@
 <template>
   <div id="app">
     <header class="header">
-      <div class="container"></div>
+      <div class="container logoW">
+        <img class="logo1" src="./assets/images/logo1.png" alt="">
+        <img class="logo2" src="./assets/images/logo2.png" alt="">
+      </div>
     </header>
     <nav class="app-nav_w">
       <div class="container">
@@ -81,7 +84,20 @@
     background-color: #eee;
     height: 100vh;
   }
-
+  .logoW{
+    display: flex;
+    justify-content: space-between;
+  }
+  .logo1{
+    margin-top: 20px;
+    width: 343px;
+    height: 73px;
+  }
+  .logo2{
+    margin-top: 50px;
+    width: 97px;
+    height: 22px;
+  }
   .header {
     height: 100px;
     background: #fff;
