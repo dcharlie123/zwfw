@@ -10,7 +10,7 @@
     <div class="cardWarp">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <el-select v-model="value" placeholder="请选择" size="small" @blur="changeSeason">
+          <el-select v-model="value" placeholder="请选择" size="small">
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
@@ -90,14 +90,14 @@ export default {
   watch: {
     value: {
       handler: function(val, oldVal) {
-        var yearNseason=this.value.split('-');
+        var yearNseason = this.value.split("-");
         this.year = yearNseason[0];
         this.season = yearNseason[1];
         this.getWechatData(this.season, this.year, this.type).then(res => {
           if (res.data !== "null") {
             this.tableData = res.data;
-          }else{
-            this.tableData=[]
+          } else {
+            this.tableData = [];
           }
         });
       },
@@ -110,12 +110,6 @@ export default {
         "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechat",
         { season: season, year: year, type: type }
       );
-    },
-    handleClick(tab, event) {
-      console.log(tab, event);
-    },
-    select(i) {
-      console.log(i);
     },
     radioChange(val) {
       if (val == "广东省级部门") {
@@ -130,11 +124,12 @@ export default {
       this.year = yearNseason[0];
       this.season = yearNseason[1];
       this.getWechatData(this.season, this.year, this.type).then(res => {
-        console.log(res);
+        if (res.data !== "null") {
+          this.tableData = res.data;
+        } else {
+          this.tableData = [];
+        }
       });
-    },
-    changeSeason(val) {
-      console.log(val);
     }
   }
 };
@@ -171,13 +166,13 @@ export default {
         }
       }
     }
-    .compare{
-      img{
-        width:13px;
+    .compare {
+      img {
+        width: 13px;
         height: 14px;
         margin-right: 4px;
       }
-      span{
+      span {
         font-size: 16px;
         color: #333;
       }

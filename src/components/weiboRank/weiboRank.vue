@@ -79,8 +79,8 @@
                 </el-option>
               </el-select>
               <div class="searchW">
-                <input type="text" name="" id="" class="search" placeholder="请输入公号名">
-                <button class="searchBtn">搜索</button>
+                <input type="text" name="" id="" class="search" placeholder="请输入公号名" v-model.trim="searchData">
+                <button class="searchBtn" @click="goSeach">搜索</button>
               </div>
             </div>
           </div>
@@ -112,6 +112,9 @@
                   <span class="detail">详情</span>
                 </td>
               </tr>
+              <tr v-if="!tableData.length">
+                <td colspan="8">暂无数据</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -121,212 +124,261 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        tableData: [],
-        tabPosition: 'left',
-        date: '',
-        options: [],
-        value: "",
-        organ: "机构名",
-        organOptions: [],
-        type: 0,
-        typeOptions: [{
-            label: "省直",
-            value: 0
-          },
-          {
-            label: "市直",
-            value: 1
-          },
-          {
-            label: "地级市",
-            value: 2
-          }
-        ],
-        year:'',
-        season:'',
-        summary:{}
-      };
-    },
-    watch: {
-      value: {
-        handler: function (val, oldVal) {
-          if (this.season && this.year) {
-            var yearNseason = this.value.split("-");
-            this.year = yearNseason[0];
-            this.season = yearNseason[1];
-            if (!this.tableData.length && this.tableData != "false") {
-              this.getweiboData(this.season, this.year).then((res) => {
+export default {
+  data() {
+    return {
+      searchData:'',
+      tableData: [],
+      tabPosition: "left",
+      date: "",
+      options: [],
+      value: "",
+      organ: "机构名",
+      organOptions: [],
+      type: 0,
+      typeOptions: [
+        {
+          label: "省直",
+          value: 0
+        },
+        {
+          label: "市直",
+          value: 1
+        },
+        {
+          label: "地级市",
+          value: 2
+        }
+      ],
+      year: "",
+      season: "",
+      summary: {}
+    };
+  },
+  watch: {
+    value: {
+      handler: function(val, oldVal) {
+        if (this.season && this.year) {
+          var yearNseason = this.value.split("-");
+          this.year = yearNseason[0];
+          this.season = yearNseason[1];
+          if (!this.tableData.length) {
+            this.getweiboData(this.season, this.year).then(res => {
+              if (res.data != "false") {
                 this.tableData = res.data;
-                console.log(this.tableData)
-              })
-            }
-          }
-        },
-        immediate: true
-      },
-      type: {
-        handler(val) {
-          if (this.type == 0 || this.type == 1 || this.type == 2) {
-            this.getOrgan(this.type).then((res) => {
-              this.organOptions = [];
-              if (res.data!=='null') {
-                res.data.map((item) => {
-                  this.organOptions.push({
-                    label: item.nature,
-                    value: item.nature
-                  });
-                })
+              } else {
+                this.tableData = [];
               }
-            })
-          }
-
-        },
-        immediate: true
-      },
-    },
-    created() {
-      this.$http
-        .post(
-          "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason", {
-            mname: "weibo"
-          }
-        )
-        .then(res => {
-          var res = res.data;
-          var dataTo = ["一", "二", "三", "四"];
-          res.map(item => {
-            this.options.push({
-              value: `${item.year}-${item.season}`,
-              label: `${item.year}年第${dataTo[item.season - 1]}季度`
             });
-          });
-          this.value = this.options[0].value;
-          this.year = res[0].year;
-          this.season = res[0].season;
-        });
-        
-    },
-    methods: {
-      getOrgan(type) {
-        return this.$http.post(
-          "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getOrgan", {
-            mname: 'weibo',
-            type: type
           }
-        )
+        }
       },
-      getweiboData(season, year, otherOptions) {
-        var options = {
-          "season": season,
-          "year": year
-        };
-        Object.assign(options,otherOptions);
-        return this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWeibo",
-          options)
+      immediate: true
+    },
+    type: {
+      handler(val) {
+        if (this.type == 0 || this.type == 1 || this.type == 2) {
+          this.getOrgan(this.type).then(res => {
+            this.organOptions = [];
+            if (res.data !== "null") {
+              res.data.map(item => {
+                this.organOptions.push({
+                  label: item.nature,
+                  value: item.nature
+                });
+              });
+            }
+          });
+        }
       },
-      handleClick(tab, event) {
-        console.log(tab, event);
-      },
-      onSubmit() {
-        console.log('submit!');
-      },
-      radioChange() {
-        console.log(this.radio)
-      }
+      immediate: true
+    },
+    organ(val) {
+      console.log(this.organ);
+      this.getweiboData(this.season, this.year, {
+        organ: this.organ
+      }).then(res => {
+        if (res.data != "false") {
+          this.tableData = res.data;
+        } else {
+          this.tableData = [];
+        }
+      });
     }
-  };
-
+  },
+  created() {
+    this.$http
+      .post(
+        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason",
+        {
+          mname: "weibo"
+        }
+      )
+      .then(res => {
+        var res = res.data;
+        var dataTo = ["一", "二", "三", "四"];
+        res.map(item => {
+          this.options.push({
+            value: `${item.year}-${item.season}`,
+            label: `${item.year}年第${dataTo[item.season - 1]}季度`
+          });
+        });
+        this.value = this.options[0].value;
+        this.year = res[0].year;
+        this.season = res[0].season;
+      });
+  },
+  methods: {
+        goSeach() {
+      if (this.searchData) {
+        if (this.organ!="机构名"&&this.organ) {
+          this.getweiboData(this.season, this.year, {
+            "name": this.searchData,
+            "organ":this.organ
+          }).then(res => {
+            if (res.data != "false") {
+              this.tableData = res.data;
+            } else {
+              this.tableData = [];
+            }
+          }).then(()=>{
+            if(this.tableData.length==1){
+              this.goDetail()
+            }
+          });
+        } else {
+          this.getweiboData(this.season, this.year, {
+            name: this.searchData
+          }).then(res => {
+            if (res.data != "false") {
+              this.tableData = res.data;
+            } else {
+              this.tableData = [];
+            }
+          });
+        }
+      }
+    },
+    getOrgan(type) {
+      return this.$http.post(
+        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getOrgan",
+        {
+          mname: "weibo",
+          type: type
+        }
+      );
+    },
+    getweiboData(season, year, otherOptions) {
+      var options = {
+        season: season,
+        year: year
+      };
+      Object.assign(options, otherOptions);
+      return this.$http.post(
+        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWeibo",
+        options
+      );
+    },
+    goDetail(){},
+    handleClick(tab, event) {
+      console.log(tab, event);
+    },
+    onSubmit() {
+      console.log("submit!");
+    },
+    radioChange() {
+      console.log(this.radio);
+    }
+  }
+};
 </script>
 
 <style scoped lang="scss">
-  @import '../../assets/css/style.scss';
-  .container {
-    .allRank-header {
-      display: flex;
-      justify-content: space-between;
-    }
-    .selectBtn {
-      padding-top: 30px;
-      text-align: center;
-    }
-    .el-container {}
-    .cardWarp1 {
-      padding: 22px 30px;
-      .cardBox {
-        ul {
-          padding: 0 0 0 50px;
-          margin: 0;
-          font-size: 0;
-          list-style: none;
-          display: flex;
-          justify-content: flex-start;
-          flex-wrap: wrap;
-          li {
-            display: inline-block;
-            width: 20%;
-            font-size: 16px;
-            .type {
-              font-size: 14px;
-              color: #666666;
-            }
-            .organization {
-              font-size: 18px;
-              color: #333;
-              font-weight: 600;
-            }
-            .num {
-              span {
-                color: #C91B1B;
-              }
-            }
-          }
-        }
-      }
-    }
-    .cardWarp2 {
-      padding: 22px 30px;
-      .cardHeader {
+@import "../../assets/css/style.scss";
+.container {
+  .allRank-header {
+    display: flex;
+    justify-content: space-between;
+  }
+  .selectBtn {
+    padding-top: 30px;
+    text-align: center;
+  }
+  .el-container {
+  }
+  .cardWarp1 {
+    padding: 22px 30px;
+    .cardBox {
+      ul {
+        padding: 0 0 0 50px;
+        margin: 0;
+        font-size: 0;
+        list-style: none;
         display: flex;
-        justify-content: space-between;
-        .right {
-          display: flex;
-          .el-select {
-            margin-right: 10px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        li {
+          display: inline-block;
+          width: 20%;
+          font-size: 16px;
+          .type {
+            font-size: 14px;
+            color: #666666;
           }
-          .searchW {
-            margin-left: 70px;
-            .search {
-              height: 30px;
-              box-sizing: border-box;
-              border: 1px solid #ccc;
-              border-radius: 4px 0 0 4px;
-              margin: 0;
-              padding: 0 10px;
-              vertical-align: middle;
-            }
-            .searchBtn {
-              vertical-align: middle;
-              height: 30px;
-              line-height: 30px;
-              padding: 0;
-              margin-left: -4px;
-              box-sizing: border-box;
-              padding: 0 14px;
-              color: #fff;
-              background-color: #C91B1B;
-              border: 0;
-              border-radius: 0 4px 4px 0;
+          .organization {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+          }
+          .num {
+            span {
+              color: #c91b1b;
             }
           }
         }
-      }
-      .table-wrapper {
-        @include Mytable;
       }
     }
   }
-
+  .cardWarp2 {
+    padding: 22px 30px;
+    .cardHeader {
+      display: flex;
+      justify-content: space-between;
+      .right {
+        display: flex;
+        .el-select {
+          margin-right: 10px;
+        }
+        .searchW {
+          margin-left: 70px;
+          .search {
+            height: 30px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+            margin: 0;
+            padding: 0 10px;
+            vertical-align: middle;
+          }
+          .searchBtn {
+            vertical-align: middle;
+            height: 30px;
+            line-height: 30px;
+            padding: 0;
+            margin-left: -4px;
+            box-sizing: border-box;
+            padding: 0 14px;
+            color: #fff;
+            background-color: #c91b1b;
+            border: 0;
+            border-radius: 0 4px 4px 0;
+          }
+        }
+      }
+    }
+    .table-wrapper {
+      @include Mytable;
+    }
+  }
+}
 </style>

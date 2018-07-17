@@ -165,7 +165,8 @@
       }).then((res) => {
         this.tableData = res.data;
         // console.log(this.tableData);
-        this.dealChartData(this.tableData.data)
+        var chartData1=this.dealChartData(this.tableData.data);
+        this.chartData=chartData1;
       })
     },
     watch: {
@@ -231,17 +232,25 @@
         var dealData = [],
           columns = [],
           dataArr=[];
+          //columns
         columns.push("date");
-        for (var key1 of Object.entries(data)) {
-          // var row = {};
-          // row["date"] = key1[0];
-          // columns.push(row);
-          // console.log(key1[0])
-          for(var key2 in key1[1]){
-            console.log(key2)
+        var arr=Object.entries(data);
+        for(var i in arr[0][1]){
+          columns.push(i)
+        }
+        console.log(columns)
+        var rows=[];
+        for(var i=0;i<arr.length;i++){
+          rows[i]={};
+          rows[i]["date"]=arr[i][0]
+          for(var j=1;j<columns.length;j++){
+            rows[i][columns[j]]=arr[i][1][columns[j]]
           }
         }
-        // console.log(data);
+        return {
+          columns:columns,
+          rows:rows
+        }
       } 
     }
   };
