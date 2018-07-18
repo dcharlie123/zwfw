@@ -339,8 +339,7 @@
       },
       dealSeanson(data){
         var dataArr=data.split("-");
-        var year=dataArr[0],month=Number(dataArr[2]),season;
-        console.log(month);
+        var year=dataArr[0],month=Number(dataArr[1]),season;
         if(month<=3){
           season="一"
         }else if(month>3&&month<=6){
