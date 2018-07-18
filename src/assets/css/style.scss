@@ -61,7 +61,9 @@ html {
 .cardWarp1 .el-card__header {
   background: #F2F5F6;
 }
-
+.el-radio-button:last-child .el-radio-button__inner{
+  border-radius:4px 4px 4px 4px;
+}
 /*自定义table样式*/
 
 @mixin Mytable {

@@ -48,7 +48,7 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'ndzw/static',
-    assetsPublicPath: '__PUBLIC__',
+    assetsPublicPath: '/mediarank/htdoc/Public/',
 
     /**
      * Source Maps

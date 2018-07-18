@@ -4,6 +4,7 @@ import Router from 'vue-router'
 import Vue from 'vue'
 import allRank from '@/components/allRank/allRank';
 import detail from '@/components/detail/detail.vue'
+import headlineRank from '@/components/headlineRank/headlineRank';
 import wechatRank from '@/components/wechatRank/wechatRank';
 import weiboRank from '@/components/weiboRank/weiboRank';
 import zwfw from '@/components/zwfw';
@@ -62,7 +63,12 @@ export default new Router({
           component: weiboRank
         },
         {
-          path: "detail/:Otype/:season/:year/:name",
+          path: 'headlineRank',
+          name: "headlineRank",
+          component: headlineRank
+        },
+        {
+          path: "detail/:Otype/:name",
           name: "detail",
           component: detail
         }

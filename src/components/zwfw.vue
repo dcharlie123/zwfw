@@ -2,13 +2,13 @@
   <div class="container ">
     <div class="wrapperW">
       <nav class="index-nav">
-        <ul>
+        <ul style="margin-top:0">
           <li v-for="(item,index) in ['总榜','微信榜','微博榜','今日头条榜']" :class="{'is-active':index==activeNav}" @click="tabToggle(index)">{{item}}</li>
         </ul>
       </nav>
       <div class="content">
         <!--<component :is='currentView' keep-alive></component>-->
-        <router-view keep-alive></router-view>
+          <router-view></router-view>
       </div>
     </div>
   </div>
@@ -28,10 +28,10 @@
       }
     },
     created() {
-      // this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechat",{season:1,year:2018,type:0}).then((res)=>{
-      //   console.log(res)
-      // })
-      var View = this.$route.name||this.$route.params.type;
+      var View = this.$route.name;
+      if (View == "detail") {
+        View = this.$route.params.Otype;
+      }
       switch (View) {
         case "allRank":
           this.activeNav = 0
@@ -42,7 +42,33 @@
         case "weiboRank":
           this.activeNav = 2
           break;
+        case "headlineRank":
+          this.activeNav = 3;
+          break;
       }
+    },
+    watch: {
+      $route(to, from) {
+        console.log(to.path)
+        var View = to.name;
+      if (View == "detail") {
+        View = to.params.Otype;
+      }
+      switch (View) {
+        case "allRank":
+          this.activeNav = 0
+          break;
+        case "wechatRank":
+          this.activeNav = 1;
+          break;
+        case "weiboRank":
+          this.activeNav = 2
+          break;
+        case "headlineRank":
+          this.activeNav = 3;
+          break;
+      }
+      },
     },
     methods: {
       tabToggle(index) {
@@ -67,7 +93,9 @@
             })
             break;
           case 3:
-            this.$router.push({ name: 'detail', params: {type:"wechatRank",id: 123 }})
+            this.$router.push({
+              path: "/zwxmt/headlineRank"
+            })
             break;
         }
       }
@@ -103,11 +131,14 @@
   }
 
   .wrapperW {
+
     .index-nav {
       height: 50px;
       background: #fff;
       line-height: 45px;
       ul {
+        width: 100%;
+        display: inline-block;
         border-bottom: 1px solid #ccc;
         li {
           padding: 0 28px;
@@ -130,12 +161,13 @@
             }
             &::after {
               position: absolute;
-              bottom: -1px;
+              z-index: 1;
+              bottom: -2px;
               content: '';
               display: block;
               width: 100%;
               left: 0;
-              height: 1px;
+              height: 4px;
               background: #fff;
 
             }

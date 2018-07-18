@@ -63,25 +63,25 @@
               <p class="type">文风亲和力</p>
               <p class="organization">{{summary.affinity.name}}</p>
               <p class="num">
-                <span>{{summary.affinity.affinity}}</span>次</p>
+                <span>{{summary.affinity.affinity}}</span>分</p>
             </li>
             <li v-if="summary.consensus">
               <p class="type">舆情应对</p>
               <p class="organization">{{summary.consensus.name}}</p>
               <p class="num">
-                <span>{{summary.consensus.consensus}}</span>次</p>
+                <span>{{summary.consensus.consensus}}</span>分</p>
             </li>
             <li v-if="summary.information">
               <p class="type">信息公开</p>
               <p class="organization">{{summary.information.name}}</p>
               <p class="num">
-                <span>{{summary.information.information}}</span>次</p>
+                <span>{{summary.information.information}}</span>分</p>
             </li>
             <li v-if="summary.media">
               <p class="type">媒体评价</p>
               <p class="organization">{{summary.media.name}}</p>
               <p class="num">
-                <span>{{summary.media.media}}</span>次</p>
+                <span>{{summary.media.media}}</span>分</p>
             </li>
           </ul>
           <div v-else>暂无数据</div>
@@ -132,7 +132,7 @@
                 <td>{{item.single_read?item.single_read:'-'}}</td>
                 <td>{{item.total_read?item.total_read:'-'}}</td>
                 <td>
-                  <span class="detail" :data-year="item.year" :data-season="item.season" :data-name="item.name" @click="goDetail">详情</span>
+                  <span class="detail" :data-name="item.name" @click="goDetail">详情</span>
                 </td>
                 
               </tr>
@@ -142,11 +142,11 @@
                 </td>
                 <td>{{item.nature}}</td>
                 <td>{{item.name}}</td>
+                <td>{{item.likes?item.likes:'-'}}</td>
                 <td>{{item.avg_like?item.avg_like:'-'}}</td>
                 <td>{{item.head_like?item.head_like:'-'}}</td>
-                <td>{{item.like?item.like:'-'}}</td>
                 <td>
-                  <span class="detail" :data-year="item.year" :data-season="item.season">详情</span>
+                  <span class="detail" :data-name="item.name" @click="goDetail">详情</span>
                 </td>
                 
               </tr>
@@ -159,7 +159,7 @@
                 <td>{{item.pushnum?item.pushnum:'-'}}</td>
                 <td>{{item.sending_num?item.sending_num:'-'}}</td>
                 <td>
-                  <span class="detail" :data-year="item.year" :data-season="item.season">详情</span>
+                  <span class="detail" :data-name="item.name" @click="goDetail">详情</span>
                 </td>
                 
               </tr>
@@ -174,7 +174,7 @@
                 <td>{{item.information?item.information:'-'}}</td>
                 <td>{{item.media?item.media:'-'}}</td>
                 <td>
-                  <span class="detail" :data-year="item.year" :data-season="item.season">详情</span>
+                  <span class="detail" :data-name="item.name" @click="goDetail">详情</span>
                 </td>
                 
               </tr>
@@ -222,15 +222,15 @@ export default {
       type: 0,
       typeOptions: [
         {
-          label: "省直",
+          label: "广东省级部门",
           value: 0
         },
         {
-          label: "市直",
+          label: "广东省21个地市",
           value: 1
         },
         {
-          label: "地级市",
+          label: "广州市直部门",
           value: 2
         }
       ],
@@ -240,7 +240,7 @@ export default {
   created() {
     this.$http
       .post(
-        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason",
+        "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason",
         {
           mname: "wechat"
         }
@@ -267,14 +267,14 @@ export default {
           this.year = yearNseason[0];
           this.season = yearNseason[1];
 
-          this.getwechatSummary(this.season, this.year, this.field).then(
+          this.getwechatSummary(this.season, this.year, this.type,this.field).then(
             res => {
               this.summary = {};
               this.summary = res.data;
             }
           );
           if (!this.tableData.length) {
-            this.getwechatData(this.season, this.year, this.field).then(res => {
+            this.getwechatData(this.season, this.year,this.type, this.field).then(res => {
               if (res.data != "false") {
                 this.tableData = res.data;
               } else {
@@ -298,6 +298,21 @@ export default {
               });
             });
           });
+          setTimeout(() => {
+          this.getwechatSummary(this.season, this.year, this.type,this.field).then(
+            res => {
+              this.summary = {};
+              this.summary = res.data;
+            }
+          );
+          this.getwechatData(this.season, this.year,this.type, this.field).then(res => {
+            if (res.data != "false") {
+              this.tableData = res.data;
+            } else {
+              this.tableData = [];
+            }
+          });
+        });
         }
       },
       immediate: true
@@ -305,13 +320,13 @@ export default {
     field: {
       handler(val) {
         setTimeout(() => {
-          this.getwechatSummary(this.season, this.year, this.field).then(
+          this.getwechatSummary(this.season, this.year, this.type,this.field).then(
             res => {
               this.summary = {};
               this.summary = res.data;
             }
           );
-          this.getwechatData(this.season, this.year, this.field).then(res => {
+          this.getwechatData(this.season, this.year,this.type, this.field).then(res => {
             if (res.data != "false") {
               this.tableData = res.data;
             } else {
@@ -323,7 +338,7 @@ export default {
       immediate: true
     },
     organ(val) {
-      this.getwechatData(this.season, this.year, this.field, {
+      this.getwechatData(this.season, this.year, this.type,this.field, {
         organ: String(this.organ)
       }).then(res => {
         if (res.data != "false") {
@@ -338,7 +353,7 @@ export default {
     goSeach() {
       if (this.searchData) {
         if (this.organ!="机构名"&&this.organ) {
-          this.getwechatData(this.season, this.year, this.field, {
+          this.getwechatData(this.season, this.year,this.type,this.field, {
             "name": this.searchData,
             "organ":this.organ
           }).then(res => {
@@ -349,7 +364,7 @@ export default {
             }
           });
         } else {
-          this.getwechatData(this.season, this.year, this.field, {
+          this.getwechatData(this.season, this.year, this.type,this.field, {
             name: this.searchData
           }).then(res => {
             if (res.data != "false") {
@@ -370,46 +385,34 @@ export default {
     },
     getOrgan(type) {
       return this.$http.post(
-        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getOrgan",
+        "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getOrgan",
         {
           mname: "wechat",
           type: type
         }
       );
     },
-    getwechatSummary(season, year, field) {
+    getwechatSummary(season, year,type,field) {
       return this.$http.post(
-        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/summary",
+        "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/summary",
         {
           season: season,
           year: year,
+          type:type,
           field: field
         }
       );
     },
-    getwechatData(season, year, field, otherOptions) {
+    getwechatData(season, year,type, field, otherOptions) {
       var options = {
         season: season,
         year: year,
+        type:type,
         field: field
       };
       Object.assign(options, otherOptions);
-      // if (name) {
-      //   Object.assign(options, {
-      //     "name": name
-      //   })
-      // } else if (organ) {
-      //   Object.assign(options, {
-      //     "organ": organ
-      //   })
-      // } else if (organ && name) {
-      //   Object.assign(options, {
-      //     "name": name,
-      //     "organ": organ
-      //   })
-      // }
       return this.$http.post(
-        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatData",
+        "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatData",
         options
       );
     },
@@ -432,6 +435,7 @@ export default {
             "单篇最高阅读",
             "总阅读数"
           ];
+          this.organ="机构名"
           break;
         case "点赞量":
           this.field = "like";
@@ -439,14 +443,16 @@ export default {
             "排名",
             "机构",
             "微信号",
-            "平均点赞",
-            "首页点赞",
-            "首页点赞"
+            "总点赞量",
+            "平均点赞量",
+            "头条总点赞量",
           ];
+          this.organ="机构名"
           break;
         case "发稿量":
           this.field = "send";
           this.tableHeader = ["排名", "机构", "微信号", "推送数", "发文数"];
+           this.organ="机构名"
           break;
         case "记者评价榜":
           this.field = "score";
@@ -459,6 +465,7 @@ export default {
             "信息公开",
             "媒体评价"
           ];
+          this.organ="机构名"
           break;
       }
     }
@@ -510,7 +517,7 @@ export default {
     }
   }
   .cardWarp2 {
-    padding: 22px 30px;
+    padding: 50px 30px;
     .cardHeader {
       display: flex;
       justify-content: space-between;

@@ -2,22 +2,22 @@
   <div class="container">
     <header>
       <h1 class="organization">{{name}}</h1>
-      <div class="right">
-        <el-select v-model="value" placeholder="请选择" size="small">
-          <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+      <!--<div class="right">
+        <el-select v-model="type" placeholder="请选择" size="small">
+          <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value">
           </el-option>
         </el-select>
-        <el-select v-model="value" placeholder="请选择" size="small">
-          <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+        <el-select v-model="organ" placeholder="请选择" size="small">
+          <el-option v-for="item in organOptions" :key="item.value" :label="item.label" :value="item.value">
           </el-option>
         </el-select>
         <div class="searchW">
           <input type="text" name="" id="" class="search" placeholder="请输入公号名">
           <button class="searchBtn">搜索</button>
         </div>
-      </div>
+      </div>-->
     </header>
-    <div class="selectBtn">
+    <div class="selectBtn" v-if="mname!='weibo'">
       <el-radio-group v-model="radio" @change="radioChange">
         <el-radio-button label="阅读量"></el-radio-button>
         <el-radio-button label="点赞量"></el-radio-button>
@@ -26,33 +26,18 @@
         <!--<el-radio-button label="媒体评价"></el-radio-button>-->
       </el-radio-group>
     </div>
-    <div class="cardWarp1">
+    <div class="cardWarp1" v-if="Object.keys(tableData).length && Object.keys(tableData.rank).length">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           整体概况
         </div>
         <div class="cardBox">
           <ul>
-            <li>
-              <p class="type">总阅读量排行</p>
-              <p class="rank">第1名</p>
+            <li v-for="item in listData" v-if="tableData.rank[item[0]]">
+              <p class="type">{{item[1]}}</p>
+              <p class="rank">第{{tableData.rank[item[0]]}}名</p>
             </li>
-            <li>
-              <p class="type">总阅读量排行</p>
-              <p class="rank">第1名</p>
-            </li>
-            <li>
-              <p class="type">总阅读量排行</p>
-              <p class="rank">第1名</p>
-            </li>
-            <li>
-              <p class="type">总阅读量排行</p>
-              <p class="rank">第1名</p>
-            </li>
-            <li>
-              <p class="type">总阅读量排行</p>
-              <p class="rank">第1名</p>
-            </li>
+
           </ul>
         </div>
       </el-card>
@@ -63,7 +48,7 @@
           趋势图
         </div>
         <div>
-          <ve-line :data="chartData" :extend="chartExtend" :after-config="afterConfig" :data-empty="dataEmpty"></ve-line>
+          <ve-line :data="chartData" :settings="chartSettings" :extend="chartExtend" :after-config="afterConfig"></ve-line>
         </div>
       </el-card>
     </div>
@@ -72,28 +57,14 @@
         <div class="table-wrapper">
           <table class="table" border="0">
             <thead>
-              <th>排名</th>
-              <th>机构号</th>
-              <th>总阅读量</th>
-              <th>平均阅读量</th>
-              <th>头条阅读量</th>
-              <th>头条阅读平均量</th>
-              <th>单篇最高阅读量</th>
-              <th>详情</th>
+              <th>季度</th>
+              <th v-if="tableHeader" v-for="(item,index) in tableHeader">{{item}}</th>
             </thead>
             <tbody>
-              <tr v-for="o in 4">
-                <td>
-                  第一季度
-                </td>
-                <td>广东环保</td>
-                <td>23534534</td>
-                <td>312312</td>
-                <td>131231</td>
-                <td>23123</td>
-                <td>1321</td>
-                <td>
-                  <span class="detail">详情</span>
+              <tr v-for="item in chartData.rows">
+                <td>{{item.date}}</td>
+                <td v-for="item1 in listData1" v-if="item[item1]">
+                  {{item[item1]}}
                 </td>
               </tr>
             </tbody>
@@ -107,86 +78,224 @@
 <script>
   export default {
     data() {
-      this.chartExtend = {
-        xAxis: {
-          boundaryGap: false,
-          axisLabel: {
-            margin: 20,
-            fontSize: 14
+      this.chartSettings = {
+          labelMap: {
+            total_read: '总阅读数',
+            avg_read: '平均阅读量',
+            head_read: '头条阅读量',
+            pushnum: '推送数',
+            like: '点赞数',
+            avg_like: '平均点赞',
+            head_like: '首页点赞',
+            single_read: '单篇最高阅读',
+            information: '信息公开',
+            sending_num: '发文数',
+            consensus: '舆情应对',
+            affinity: '文风亲和力',
+            media: '媒体评价',
+            weibo: '发博数',
+            follow: '关注数',
+            influence: '影响力',
+            vitality: '活跃力',
+            send: '发文数',
+            reacommend: "推荐数",
+            collect: "收藏数",
+            share: "分享数",
+            comment: "评论数",
+            fans: "粉丝数",
+            fans_add: "粉丝增量",
+            avg_recommend: "平均推荐数",
+            avg_collect: "平均收藏",
+            avg_share: "平均分享",
+            avg_comment: "平均评论"
+          }
+        },
+        this.chartExtend = {
+          xAxis: {
+            boundaryGap: false,
+            axisLabel: {
+              rotate:45,
+              margin: 20,
+              fontSize: 14
+            }
           }
         }
-      }
       return {
+        listData: [
+          ['total_read', '总阅读数'],
+          ['avg_read', '平均阅读量'],
+          ['head_read', '头条阅读量'],
+          ['pushnum', '推送数'],
+          ['like', '点赞数'],
+          ['avg_like', '平均点赞'],
+          ['head_like', '首页点赞'],
+          ['single_read', '单篇最高阅读'],
+          ['information', '信息公开'],
+          ['sending_num', '发文数'],
+          ['consensus', '舆情应对'],
+          ['affinity', '文风亲和力'],
+          ['media', '媒体评价'],
+          ['weibo', '发博数'],
+          ['follow', '关注数'],
+          ['influence', '影响力'],
+          ['vitality', '活跃力'],
+          ['send', '发文数'],
+          ['reacommend', "推荐数"],
+          ['collect', "收藏数"],
+          ['share', "分享数"],
+          ['comment', "评论数"],
+          ['fans', "粉丝数"],
+          ['fans_add', "粉丝增量"],
+          ['avg_recommend', "平均推荐数"],
+          ['avg_collect', "平均收藏"],
+          ['avg_share', "平均分享"],
+          ['avg_comment', "平均评论"]
+        ],
+        listData1: [],
         chartData: {
           columns: [],
           rows: []
         },
-        dataEmpty: true,
+        organ: "机构名",
+        organOptions: [],
+        // dataEmpty: true,
         activeName2: 'first',
         tableData: {},
         tabPosition: 'left',
         date: '',
         radio: "阅读量",
-        options: [{
-          value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
-        }],
-        value: '',
+        type: 0,
+        typeOptions: [{
+            label: "广东省级部门",
+            value: 0
+          },
+          {
+            label: "广东省21个地市",
+            value: 1
+          },
+          {
+            label: "广州市直部门",
+            value: 2
+          }
+        ],
         name: "",
         year: '',
         season: '',
         field: 'read',
         Otype: "",
-        tableHeader: []
+        tableHeader: [],
+        mname: 'wechat'
       };
     },
-    created: function () {
+    created() {
       this.name = unescape(this.$route.params.name);
-      this.year = this.$route.params.year;
-      this.season = this.$route.params.season;
+      // console.log(this.name)
+      // this.year = this.$route.params.year;
+      // this.season = this.$route.params.season;
       this.Otype = this.$route.params.Otype;
-      this.getWechatCompany({
-        name: this.name,
-        year: this.year,
-        season: this.season,
-        field: this.field
-      }).then((res) => {
-        this.tableData = res.data;
-        // console.log(this.tableData);
-        var chartData1=this.dealChartData(this.tableData.data);
-        this.chartData=chartData1;
-      })
+      if (this.Otype == 'wechatRank') {
+        this.mname = "wechat"
+      } else if (this.Otype == "weiboRank") {
+        this.mname = "weibo"
+      } else if (this.Otype == 'headlineRank') {
+        this.mname = 'headline'
+      }
+      var options = {
+        name: this.name
+      }
+      if (this.Otype != "weiboRank") {
+        Object.assign(options, {
+          field: this.field
+        })
+        this.getDetail(this.Otype, options)
+      } else(
+        this.getDetail(this.Otype, options)
+      )
     },
     watch: {
-      field: {
+      $route(to, from) {
+        // console.log(to.path)
+      },
+      field() {
+        var options = {
+          name: this.name
+        }
+        if (this.Otype != "weiboRank") {
+          Object.assign(options, {
+            field: this.field
+          })
+          this.getDetail(this.Otype, options)
+        } else(
+          this.getDetail(this.Otype, options)
+        )
+      },
+      type: {
         handler(val) {
-          console.log(val)
+          if (this.type == 0 || this.type == 1 || this.type == 2) {
+            this.getOrgan(this.type).then(res => {
+              this.organOptions = [];
+              res.data.map(item => {
+                this.organOptions.push({
+                  label: item.nature,
+                  value: item.nature
+                });
+              });
+            });
+          }
         },
         immediate: true
       }
     },
     methods: {
-      getWechatCompany(options) {
-        return this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatCompany",
-          options)
+      firstUpperCase(str) {
+        return str.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase());
+      },
+      getDetail(Otype, options) {
+        this.$http.post(
+          `http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/get${this.firstUpperCase(this.mname)}Company`,
+          options).then((res) => {
+          this.tableData = res.data;
+        }).then(() => {
+          this.chartData = this.dealChartData(this.tableData.data);
+
+          this.dealtableHeader(this.chartData.columns);
+        })
+
+      },
+      getOrgan(type) {
+        return this.$http.post(
+          "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getOrgan", {
+            mname: this.mname,
+            type: type
+          }
+        )
+      },
+      dealtableHeader(data) {
+        var set1 = new Set(this.chartData.columns);
+        var a = [];
+        this.listData.map((item) => {
+          a.push(item[0])
+        })
+        this.listData1 = a;
+        // this.listData1.unshift()
+        var set2 = new Set(a);
+        var head = [];
+        var b = [...set2].filter((x, index) => {
+          if (set1.has(x)) {
+            this.listData.forEach((item, index1) => {
+              if (index == index1) {
+                head.push(item[1])
+              }
+            })
+          }
+        })
+        this.tableHeader = head;
       },
       handleClick(tab, event) {
-        console.log(tab, event);
+        // console.log(tab, event);
       },
       onSubmit() {
-        console.log('submit!');
+        // console.log('submit!');
       },
       radioChange() {
         switch (this.radio) {
@@ -228,30 +337,44 @@
         }
         return arr;
       },
+      dealSeanson(data){
+        var dataArr=data.split("-");
+        var year=dataArr[0],month=Number(dataArr[2]),season;
+        console.log(month);
+        if(month<=3){
+          season="一"
+        }else if(month>3&&month<=6){
+          season="二"
+        }else if(month>6&&month<=9){
+          season="三"
+        }else if(month>9&&month<=12){
+          season="四"
+        }
+        return `${year}年第${season}季度`;
+      },
       dealChartData(data) {
         var dealData = [],
           columns = [],
-          dataArr=[];
-          //columns
+          dataArr = [];
+        //columns
         columns.push("date");
-        var arr=Object.entries(data);
-        for(var i in arr[0][1]){
+        var arr = Object.entries(data);
+        for (var i in arr[0][1]) {
           columns.push(i)
         }
-        console.log(columns)
-        var rows=[];
-        for(var i=0;i<arr.length;i++){
-          rows[i]={};
-          rows[i]["date"]=arr[i][0]
-          for(var j=1;j<columns.length;j++){
-            rows[i][columns[j]]=arr[i][1][columns[j]]
+        var rows = [];
+        for (var i = 0; i < arr.length; i++) {
+          rows[i] = {};
+          rows[i]["date"] = this.dealSeanson(arr[i][0]);
+          for (var j = 1; j < columns.length; j++) {
+            rows[i][columns[j]] = arr[i][1][columns[j]]
           }
         }
         return {
-          columns:columns,
-          rows:rows
+          columns: columns,
+          rows: rows
         }
-      } 
+      }
     }
   };
 
@@ -327,8 +450,9 @@
           font-size: 0;
           list-style: none;
           display: flex;
-          justify-content: flex-start;
+          justify-content: space-around;
           flex-wrap: wrap;
+          text-align: center;
           li {
             display: inline-block;
             width: 20%;

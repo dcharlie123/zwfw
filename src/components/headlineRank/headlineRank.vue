@@ -91,10 +91,7 @@
               <th>排名</th>
               <th>机构号</th>
               <th>粉丝</th>
-              <th>关注数</th>
-              <th>发博数</th>
-              <th>点赞数</th>
-              <th>平均点赞</th>
+              <th>粉丝增量</th>
               <th>详情</th>
             </thead>
             <tbody>
@@ -104,18 +101,13 @@
                 </td>
                 <td>{{item.name}}</td>
                 <td>{{item.fans}}</td>
-                <td>{{item.follow}}</td>
-                <td>{{item.weibo}}</td>
-                <td>{{item.likes}}</td>
-                
-                <td>{{item.avg_like}}</td>
-                
+                <td>{{item.fans_add}}</td>
                 <td>
                   <span class="detail" :data-name="item.name" @click="goDetail">详情</span>
                 </td>
               </tr>
               <tr v-if="!tableData.data.length">
-                <td colspan="8">暂无数据</td>
+                <td colspan="5">暂无数据</td>
               </tr>
             </tbody>
           </table>
@@ -163,10 +155,11 @@
             var yearNseason = this.value.split("-");
             this.year = yearNseason[0];
             this.season = yearNseason[1];
-            if (!this.tableData.data.length) {
-              this.getweiboData(this.season, this.year,this.type).then(res => {
+            if (!this.tableData.length) {
+              this.getHeadlineData(this.season, this.year,this.type).then(res => {
                 if (res.data != "false") {
                   this.tableData = res.data;
+                  // console.log(this.tableData)
                 } else {
                   this.tableData = [];
                 }
@@ -190,24 +183,21 @@
                 });
               }
             });
-            setTimeout(()=>{
-              
-              this.getweiboData(this.season, this.year,this.type).then(res => {
+            this.getHeadlineData(this.season, this.year,this.type).then(res => {
                 if (res.data != "false") {
                   this.tableData = res.data;
+                  // console.log(this.tableData)
                 } else {
                   this.tableData = [];
                 }
               });
-            
-            })
           }
         },
         immediate: true
       },
       organ(val) {
-        console.log(this.organ);
-        this.getweiboData(this.season, this.year, this.type,{
+        // console.log(this.organ);
+        this.getHeadlineData(this.season, this.year,this.type, {
           organ: this.organ
         }).then(res => {
           if (res.data != "false") {
@@ -222,7 +212,7 @@
       this.$http
         .post(
           "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason", {
-            mname: "weibo"
+            mname: "headline"
           }
         )
         .then(res => {
@@ -243,7 +233,7 @@
       goSeach() {
         if (this.searchData) {
           if (this.organ != "机构名" && this.organ) {
-            this.getweiboData(this.season, this.year, this.type,{
+            this.getHeadlineData(this.season, this.year, this.type, {
               "name": this.searchData,
               "organ": this.organ
             }).then(res => {
@@ -253,12 +243,12 @@
                 this.tableData = [];
               }
             }).then(() => {
-              if (this.tableData.data.length == 1) {
+              if (this.tableData.length == 1) {
                 this.goDetail()
               }
             });
           } else {
-            this.getweiboData(this.season, this.year, this.type,{
+            this.getHeadlineData(this.season, this.year,this.type,{
               name: this.searchData
             }).then(res => {
               if (res.data != "false") {
@@ -273,12 +263,12 @@
       getOrgan(type) {
         return this.$http.post(
           "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getOrgan", {
-            mname: "weibo",
+            mname: "headline",
             type: type
           }
         );
       },
-      getweiboData(season, year,type, otherOptions) {
+      getHeadlineData(season, year, type,otherOptions) {
         var options = {
           season: season,
           year: year,
@@ -286,7 +276,7 @@
         };
         Object.assign(options, otherOptions);
         return this.$http.post(
-          "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWeibo",
+          "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getHeadlineData",
           options
         );
       },
@@ -295,19 +285,19 @@
         this.$router.push({
           name: "detail",
           params: {
-            Otype: "weiboRank",
+            Otype: "headline",
             name: escape(dataset.name)
           }
         });
       },
       handleClick(tab, event) {
-        console.log(tab, event);
+        // console.log(tab, event);
       },
       onSubmit() {
-        console.log("submit!");
+        // console.log("submit!");
       },
       radioChange() {
-        console.log(this.radio);
+        // console.log(this.radio);
       }
     }
   };
@@ -360,7 +350,7 @@
       }
     }
     .cardWarp2 {
-      padding: 22px 30px;
+      padding: 50px 30px;
       .cardHeader {
         display: flex;
         justify-content: space-between;

@@ -10,17 +10,17 @@
       <div class="container">
         <ul class="app-nav" @click="selectNav">
           <router-link tag="li" data-index="zwxmt" to="/zwxmt">政务新媒体</router-link>
-          <router-link tag="li" class="is-disabled" data-index="gxxmt" to="/gxxmt">高校新媒体</router-link>
+          <!--<router-link tag="li" class="is-disabled" data-index="gxxmt" to="/gxxmt">高校新媒体</router-link>-->
           <router-link tag="li" data-index="report" to="/report">智库报告</router-link>
-          <router-link tag="li" data-index="meeting" to="/meeting">小编课堂</router-link>
-          <router-link tag="li" data-index="hdjy" to="/hdjy" class="is-disabled">互动建议</router-link>
+          <!--<router-link tag="li" data-index="meeting" to="/meeting">小编课堂</router-link>-->
+          <!--<router-link tag="li" data-index="hdjy" to="/hdjy" class="is-disabled">互动建议</router-link>-->
         </ul>
       </div>
     </nav>
-    <!--<footer>
-      Copyright ©2018-20XX 粤ICP备1707xxxx号
-    </footer>-->
     <router-view/>
+    <footer class="footer">
+      Copyright ©2018-20XX 粤ICP备1707xxxx号
+    </footer>
   </div>
 </template>
 
@@ -84,20 +84,24 @@
     background-color: #eee;
     height: 100vh;
   }
-  .logoW{
+
+  .logoW {
     display: flex;
     justify-content: space-between;
   }
-  .logo1{
+
+  .logo1 {
     margin-top: 20px;
     width: 343px;
     height: 73px;
   }
-  .logo2{
+
+  .logo2 {
     margin-top: 50px;
     width: 97px;
     height: 22px;
   }
+
   .header {
     height: 100px;
     background: #fff;
@@ -109,7 +113,17 @@
     overflow: hidden;
     box-sizing: border-box;
   }
-
+  .wrapperW {
+  margin-top:30px;
+    box-sizing:border-box;
+  }
+  .footer{
+    height: 100px;
+    width: 100%;
+    line-height: 100px;
+    text-align: center;
+    color:#333;
+  }
   .app-nav_w {
     background-color: #2D3038;
     height: 50px;

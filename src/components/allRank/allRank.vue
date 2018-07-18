@@ -69,7 +69,7 @@ export default {
     var season, year;
     this.$http
       .post(
-        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason",
+        "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason",
         { mname: "wechat" }
       )
       .then(res => {
@@ -85,7 +85,7 @@ export default {
         this.year = res[0].year;
         this.season = res[0].season;
       });
-    // this.$http.post("http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechat",{""})
+    // this.$http.post("http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechat",{""})
   },
   watch: {
     value: {
@@ -107,7 +107,7 @@ export default {
   methods: {
     getWechatData(season, year, type) {
       return this.$http.post(
-        "http://120.79.224.76:82/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechat",
+        "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechat",
         { season: season, year: year, type: type }
       );
     },
