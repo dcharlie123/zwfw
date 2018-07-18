@@ -127,10 +127,10 @@
                 </td>
                 <td>{{item.nature}}</td>
                 <td>{{item.name}}</td>
+                <td>{{item.total_read?item.total_read:'-'}}</td>
                 <td>{{item.avg_read?item.avg_read:'-'}}</td>
                 <td>{{item.head_read?item.head_read:'-'}}</td>
                 <td>{{item.single_read?item.single_read:'-'}}</td>
-                <td>{{item.total_read?item.total_read:'-'}}</td>
                 <td>
                   <span class="detail" :data-name="item.name" @click="goDetail">详情</span>
                 </td>
@@ -198,10 +198,10 @@ export default {
         "排名",
         "机构",
         "微信号",
+        "总阅读数",
         "头条阅读量",
         "平均阅读量",
-        "单篇最高阅读",
-        "总阅读数"
+        "单篇最高阅读"
       ],
       activeName2: "first",
       year: null,
@@ -266,22 +266,30 @@ export default {
           var yearNseason = this.value.split("-");
           this.year = yearNseason[0];
           this.season = yearNseason[1];
-
-          this.getwechatSummary(this.season, this.year, this.type,this.field).then(
-            res => {
-              this.summary = {};
+          this.getwechatSummary(
+            this.season,
+            this.year,
+            this.type,
+            this.field
+          ).then(res => {
+            this.summary = {};
+            if (typeof res.data == "object") {
               this.summary = res.data;
             }
-          );
-          if (!this.tableData.length) {
-            this.getwechatData(this.season, this.year,this.type, this.field).then(res => {
-              if (res.data != "false") {
-                this.tableData = res.data;
-              } else {
-                this.tableData = [];
-              }
-            });
-          }
+          });
+
+          this.getwechatData(
+            this.season,
+            this.year,
+            this.type,
+            this.field
+          ).then(res => {
+            if (res.data != "false") {
+              this.tableData = res.data;
+            } else {
+              this.tableData = [];
+            }
+          });
         }
       },
       immediate: true
@@ -299,20 +307,32 @@ export default {
             });
           });
           setTimeout(() => {
-          this.getwechatSummary(this.season, this.year, this.type,this.field).then(
-            res => {
-              this.summary = {};
-              this.summary = res.data;
+            if (this.season && this.year) {
+              this.getwechatSummary(
+                this.season,
+                this.year,
+                this.type,
+                this.field
+              ).then(res => {
+                this.summary = {};
+                if (typeof res.data == "object") {
+                  this.summary = res.data;
+                }
+              });
             }
-          );
-          this.getwechatData(this.season, this.year,this.type, this.field).then(res => {
-            if (res.data != "false") {
-              this.tableData = res.data;
-            } else {
-              this.tableData = [];
-            }
+            this.getwechatData(
+              this.season,
+              this.year,
+              this.type,
+              this.field
+            ).then(res => {
+              if (res.data != "false") {
+                this.tableData = res.data;
+              } else {
+                this.tableData = [];
+              }
+            });
           });
-        });
         }
       },
       immediate: true
@@ -320,13 +340,26 @@ export default {
     field: {
       handler(val) {
         setTimeout(() => {
-          this.getwechatSummary(this.season, this.year, this.type,this.field).then(
-            res => {
+          if (this.season && this.year) {
+            this.getwechatSummary(
+              this.season,
+              this.year,
+              this.type,
+              this.field
+            ).then(res => {
               this.summary = {};
-              this.summary = res.data;
-            }
-          );
-          this.getwechatData(this.season, this.year,this.type, this.field).then(res => {
+              if (typeof res.data == "object") {
+                this.summary = res.data;
+              }
+            });
+          }
+
+          this.getwechatData(
+            this.season,
+            this.year,
+            this.type,
+            this.field
+          ).then(res => {
             if (res.data != "false") {
               this.tableData = res.data;
             } else {
@@ -338,7 +371,7 @@ export default {
       immediate: true
     },
     organ(val) {
-      this.getwechatData(this.season, this.year, this.type,this.field, {
+      this.getwechatData(this.season, this.year, this.type, this.field, {
         organ: String(this.organ)
       }).then(res => {
         if (res.data != "false") {
@@ -352,10 +385,10 @@ export default {
   methods: {
     goSeach() {
       if (this.searchData) {
-        if (this.organ!="机构名"&&this.organ) {
-          this.getwechatData(this.season, this.year,this.type,this.field, {
-            "name": this.searchData,
-            "organ":this.organ
+        if (this.organ != "机构名" && this.organ) {
+          this.getwechatData(this.season, this.year, this.type, this.field, {
+            name: this.searchData,
+            organ: this.organ
           }).then(res => {
             if (res.data != "false") {
               this.tableData = res.data;
@@ -364,7 +397,7 @@ export default {
             }
           });
         } else {
-          this.getwechatData(this.season, this.year, this.type,this.field, {
+          this.getwechatData(this.season, this.year, this.type, this.field, {
             name: this.searchData
           }).then(res => {
             if (res.data != "false") {
@@ -392,22 +425,22 @@ export default {
         }
       );
     },
-    getwechatSummary(season, year,type,field) {
+    getwechatSummary(season, year, type, field) {
       return this.$http.post(
         "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/summary",
         {
           season: season,
           year: year,
-          type:type,
+          type: type,
           field: field
         }
       );
     },
-    getwechatData(season, year,type, field, otherOptions) {
+    getwechatData(season, year, type, field, otherOptions) {
       var options = {
         season: season,
         year: year,
-        type:type,
+        type: type,
         field: field
       };
       Object.assign(options, otherOptions);
@@ -430,12 +463,12 @@ export default {
             "排名",
             "机构",
             "微信号",
+            "总阅读数",
             "头条阅读量",
             "平均阅读量",
-            "单篇最高阅读",
-            "总阅读数"
+            "单篇最高阅读"
           ];
-          this.organ="机构名"
+          this.organ = "机构名";
           break;
         case "点赞量":
           this.field = "like";
@@ -445,14 +478,14 @@ export default {
             "微信号",
             "总点赞量",
             "平均点赞量",
-            "头条总点赞量",
+            "头条总点赞量"
           ];
-          this.organ="机构名"
+          this.organ = "机构名";
           break;
         case "发稿量":
           this.field = "send";
           this.tableHeader = ["排名", "机构", "微信号", "推送数", "发文数"];
-           this.organ="机构名"
+          this.organ = "机构名";
           break;
         case "记者评价榜":
           this.field = "score";
@@ -465,7 +498,7 @@ export default {
             "信息公开",
             "媒体评价"
           ];
-          this.organ="机构名"
+          this.organ = "机构名";
           break;
       }
     }

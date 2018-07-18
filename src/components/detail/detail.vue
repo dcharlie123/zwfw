@@ -61,7 +61,7 @@
               <th v-if="tableHeader" v-for="(item,index) in tableHeader">{{item}}</th>
             </thead>
             <tbody>
-              <tr v-for="item in chartData.rows">
+              <tr v-for="item in rowsData">
                 <td>{{item.date}}</td>
                 <td v-for="item1 in listData1" v-if="item[item1]">
                   {{item[item1]}}
@@ -186,6 +186,11 @@
         tableHeader: [],
         mname: 'wechat'
       };
+    },
+    computed:{
+      rowsData(){
+        return Array.reverse(this.chartData.rows)
+      }
     },
     created() {
       this.name = unescape(this.$route.params.name);
@@ -371,7 +376,7 @@
         }
         return {
           columns: columns,
-          rows: rows
+          rows: Array.reverse(rows)
         }
       }
     }

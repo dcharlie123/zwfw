@@ -19,7 +19,7 @@
     </nav>
     <router-view/>
     <footer class="footer">
-      Copyright ©2018-20XX 粤ICP备1707xxxx号
+      Copyright ©2018-2018 ICP证粤B2-20040112
     </footer>
   </div>
 </template>
@@ -122,7 +122,7 @@
     width: 100%;
     line-height: 100px;
     text-align: center;
-    color:#333;
+    color:#777;
   }
   .app-nav_w {
     background-color: #2D3038;

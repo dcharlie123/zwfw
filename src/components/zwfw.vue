@@ -49,7 +49,6 @@
     },
     watch: {
       $route(to, from) {
-        console.log(to.path)
         var View = to.name;
       if (View == "detail") {
         View = to.params.Otype;
