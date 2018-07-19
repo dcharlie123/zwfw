@@ -48,7 +48,7 @@
           趋势图
         </div>
         <div>
-          <ve-line :data="chartData" :settings="chartSettings" :extend="chartExtend" :after-config="afterConfig"></ve-line>
+          <ve-line :data="chartData" :settings="chartSettings" :extend="chartExtend" :after-config="afterConfig" :grid="grid"></ve-line>
         </div>
       </el-card>
     </div>
@@ -78,13 +78,19 @@
 <script>
   export default {
     data() {
+      this.grid = {
+      show: true,
+      top: 30,
+      left: 60,
+      right:60
+    },
       this.chartSettings = {
           labelMap: {
             total_read: '总阅读数',
             avg_read: '平均阅读量',
             head_read: '头条阅读量',
             pushnum: '推送数',
-            like: '点赞数',
+            likes: '点赞数',
             avg_like: '平均点赞',
             head_like: '首页点赞',
             single_read: '单篇最高阅读',
@@ -114,7 +120,7 @@
           xAxis: {
             boundaryGap: false,
             axisLabel: {
-              rotate:45,
+              rotate:30,
               margin: 20,
               fontSize: 14
             }
@@ -126,7 +132,7 @@
           ['avg_read', '平均阅读量'],
           ['head_read', '头条阅读量'],
           ['pushnum', '推送数'],
-          ['like', '点赞数'],
+          ['likes', '点赞数'],
           ['avg_like', '平均点赞'],
           ['head_like', '首页点赞'],
           ['single_read', '单篇最高阅读'],
