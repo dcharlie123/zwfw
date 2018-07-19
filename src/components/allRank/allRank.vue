@@ -115,9 +115,9 @@ export default {
       if (val == "广东省级部门") {
         this.type = 0;
       } else if (val == "广东省21个地市") {
-        this.type = 1;
-      } else if (val == "广州市直部门") {
         this.type = 2;
+      } else if (val == "广州市直部门") {
+        this.type = 1;
       }
       this.value = this.options[0].value;
       var yearNseason = this.options[0].value.split("-");

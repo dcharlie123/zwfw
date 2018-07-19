@@ -19,10 +19,7 @@
     </header>
     <div class="selectBtn" v-if="mname!='weibo'">
       <el-radio-group v-model="radio" @change="radioChange">
-        <el-radio-button label="阅读量"></el-radio-button>
-        <el-radio-button label="点赞量"></el-radio-button>
-        <!--<el-radio-button label="评论量"></el-radio-button>-->
-        <el-radio-button label="发稿量"></el-radio-button>
+        <el-radio-button v-for="(item, index) in radioData" :key="index" :label="item"></el-radio-button>
         <!--<el-radio-button label="媒体评价"></el-radio-button>-->
       </el-radio-group>
     </div>
@@ -63,7 +60,7 @@
             <tbody>
               <tr v-for="item in rowsData">
                 <td>{{item.date}}</td>
-                <td v-for="item1 in listData1" v-if="item[item1]">
+                <td v-for="item1 in listData1" v-if="typeof item[item1]!='undefined'">
                   {{item[item1]}}
                 </td>
               </tr>
@@ -104,7 +101,7 @@
             influence: '影响力',
             vitality: '活跃力',
             send: '发文数',
-            reacommend: "推荐数",
+            recommend: "推荐数",
             collect: "收藏数",
             share: "分享数",
             comment: "评论数",
@@ -113,7 +110,8 @@
             avg_recommend: "平均推荐数",
             avg_collect: "平均收藏",
             avg_share: "平均分享",
-            avg_comment: "平均评论"
+            avg_comment: "平均评论",
+            show:"展示量"
           }
         },
         this.chartExtend = {
@@ -170,6 +168,7 @@
         tabPosition: 'left',
         date: '',
         radio: "阅读量",
+        radioData:[],
         type: 0,
         typeOptions: [{
             label: "广东省级部门",
@@ -177,11 +176,11 @@
           },
           {
             label: "广东省21个地市",
-            value: 1
+            value: 2
           },
           {
             label: "广州市直部门",
-            value: 2
+            value: 1
           }
         ],
         name: "",
@@ -195,7 +194,8 @@
     },
     computed:{
       rowsData(){
-        return Array.reverse(this.chartData.rows)
+        var data=JSON.parse(JSON.stringify(this.chartData.rows));
+        return data.reverse();
       }
     },
     created() {
@@ -204,12 +204,15 @@
       // this.year = this.$route.params.year;
       // this.season = this.$route.params.season;
       this.Otype = this.$route.params.Otype;
+      console.log(this.Otype)
       if (this.Otype == 'wechatRank') {
-        this.mname = "wechat"
+        this.mname = "wechat";
+        this.radioData=["阅读量","点赞量","发稿量"]
       } else if (this.Otype == "weiboRank") {
         this.mname = "weibo"
       } else if (this.Otype == 'headlineRank') {
-        this.mname = 'headline'
+        this.mname = 'headline',
+        this.radioData=["阅读量","粉丝量","互动量","百万+文章"]
       }
       var options = {
         name: this.name
@@ -265,7 +268,11 @@
         this.$http.post(
           `http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/get${this.firstUpperCase(this.mname)}Company`,
           options).then((res) => {
-          this.tableData = res.data;
+            if(res.data.code=="error"){
+              alert(res.data.msg);
+            }else{
+              this.tableData = res.data;
+            }
         }).then(() => {
           this.chartData = this.dealChartData(this.tableData.data);
 
@@ -312,15 +319,24 @@
         switch (this.radio) {
           case '阅读量':
             this.field = "read";
-            this.tableHeader = ["头条阅读量", "平均阅读量", "单篇最高阅读", "总阅读数"]
+            // this.tableHeader = ["头条阅读量", "平均阅读量", "单篇最高阅读", "总阅读数"]
             break;
           case '点赞量':
             this.field = "like";
-            this.tableHeader = ["平均点赞", "首页点赞", "首页点赞"]
+            // this.tableHeader = ["平均点赞", "首页点赞", "首页点赞"]
             break;
           case '发稿量':
             this.field = "send";
-            this.tableHeader = ["推送数", "发文数"]
+            // this.tableHeader = ["推送数", "发文数"]
+            break;
+          case '粉丝量':
+            this.field ="fans";
+            break;
+          case "互动量":
+            this.field="share";
+            break;
+          case "百万+文章":
+            this.field="article";
             break;
         }
       },

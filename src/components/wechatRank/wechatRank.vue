@@ -134,7 +134,7 @@
                 <td>
                   <span class="detail" :data-name="item.name" @click="goDetail">详情</span>
                 </td>
-                
+
               </tr>
               <tr v-for="(item,index) in tableData" v-if='field == "like"'>
                 <td>
@@ -148,7 +148,7 @@
                 <td>
                   <span class="detail" :data-name="item.name" @click="goDetail">详情</span>
                 </td>
-                
+
               </tr>
               <tr v-for="(item,index) in tableData" v-if='field == "send"'>
                 <td>
@@ -161,7 +161,7 @@
                 <td>
                   <span class="detail" :data-name="item.name" @click="goDetail">详情</span>
                 </td>
-                
+
               </tr>
               <tr v-for="(item,index) in tableData" v-if='field == "score"'>
                 <td>
@@ -176,7 +176,7 @@
                 <td>
                   <span class="detail" :data-name="item.name" @click="goDetail">详情</span>
                 </td>
-                
+
               </tr>
               <tr>
                 <td :colspan="tableHeader.length+1" v-if="!tableData.length">暂无数据</td>
@@ -190,122 +190,154 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      searchData: "",
-      tableHeader: [
-        "排名",
-        "机构",
-        "微信号",
-        "总阅读数",
-        "头条阅读量",
-        "平均阅读量",
-        "单篇最高阅读"
-      ],
-      activeName2: "first",
-      year: null,
-      season: null,
-      tableData: [],
-      tabPosition: "left",
-      formInline: {
-        user: "",
-        region: ""
-      },
-      date: "",
-      radio: "阅读量",
-      field: "read",
-      options: [],
-      value: "",
-      organ: "机构名",
-      organOptions: [],
-      type: 0,
-      typeOptions: [
-        {
-          label: "广东省级部门",
-          value: 0
+  export default {
+    data() {
+      return {
+        searchData: "",
+        tableHeader: [
+          "排名",
+          "机构",
+          "微信号",
+          "总阅读数",
+          "头条阅读量",
+          "平均阅读量",
+          "单篇最高阅读"
+        ],
+        activeName2: "first",
+        year: null,
+        season: null,
+        tableData: [],
+        tabPosition: "left",
+        formInline: {
+          user: "",
+          region: ""
         },
-        {
-          label: "广东省21个地市",
-          value: 1
-        },
-        {
-          label: "广州市直部门",
-          value: 2
-        }
-      ],
-      summary: {}
-    };
-  },
-  created() {
-    this.$http
-      .post(
-        "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason",
-        {
-          mname: "wechat"
-        }
-      )
-      .then(res => {
-        var res = res.data;
-        var dataTo = ["一", "二", "三", "四"];
-        res.map(item => {
-          this.options.push({
-            value: `${item.year}-${item.season}`,
-            label: `${item.year}年第${dataTo[item.season - 1]}季度`
-          });
-        });
-        this.value = this.options[0].value;
-        this.year = res[0].year;
-        this.season = res[0].season;
-      });
-  },
-  watch: {
-    value: {
-      handler: function(val, oldVal) {
-        if (this.season && this.year) {
-          var yearNseason = this.value.split("-");
-          this.year = yearNseason[0];
-          this.season = yearNseason[1];
-          this.getwechatSummary(
-            this.season,
-            this.year,
-            this.type,
-            this.field
-          ).then(res => {
-            this.summary = {};
-            if (typeof res.data == "object") {
-              this.summary = res.data;
-            }
-          });
-
-          this.getwechatData(
-            this.season,
-            this.year,
-            this.type,
-            this.field
-          ).then(res => {
-            if (res.data != "false") {
-              this.tableData = res.data;
-            } else {
-              this.tableData = [];
-            }
-          });
-        }
-      },
-      immediate: true
+        date: "",
+        radio: "阅读量",
+        field: "read",
+        options: [],
+        value: "",
+        organ: "机构名",
+        organOptions: [],
+        type: 0,
+        typeOptions: [{
+            label: "广东省级部门",
+            value: 0
+          },
+          {
+            label: "广东省21个地市",
+            value: 2
+          },
+          {
+            label: "广州市直部门",
+            value: 1
+          }
+        ],
+        summary: {}
+      };
     },
-    type: {
-      handler(val) {
-        if (this.type == 0 || this.type == 1 || this.type == 2) {
-          this.getOrgan(this.type).then(res => {
-            this.organOptions = [];
-            res.data.map(item => {
-              this.organOptions.push({
-                label: item.nature,
-                value: item.nature
-              });
+    created() {
+      this.$http
+        .post(
+          "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getSeason", {
+            mname: "wechat"
+          }
+        )
+        .then(res => {
+          var res = res.data;
+          var dataTo = ["一", "二", "三", "四"];
+          res.map(item => {
+            this.options.push({
+              value: `${item.year}-${item.season}`,
+              label: `${item.year}年第${dataTo[item.season - 1]}季度`
             });
           });
+          this.value = this.options[0].value;
+          this.year = res[0].year;
+          this.season = res[0].season;
+        });
+    },
+    watch: {
+      value: {
+        handler: function (val, oldVal) {
+          if (this.season && this.year) {
+            var yearNseason = this.value.split("-");
+            this.year = yearNseason[0];
+            this.season = yearNseason[1];
+            this.getwechatSummary(
+              this.season,
+              this.year,
+              this.type,
+              this.field
+            ).then(res => {
+              this.summary = {};
+              if (typeof res.data == "object") {
+                this.summary = res.data;
+              }
+            });
+
+            this.getwechatData(
+              this.season,
+              this.year,
+              this.type,
+              this.field
+            ).then(res => {
+              if (res.data != "false") {
+                this.tableData = res.data;
+              } else {
+                this.tableData = [];
+              }
+            });
+          }
+        },
+        immediate: true
+      },
+      type: {
+        handler(val) {
+          if (this.type == 0 || this.type == 1 || this.type == 2) {
+            this.getOrgan(this.type).then(res => {
+              this.organOptions = [];
+              this.organ = "机构名";
+              res.data.map(item => {
+                this.organOptions.push({
+                  label: item.nature,
+                  value: item.nature
+                });
+              });
+            });
+            setTimeout(() => {
+              if (this.season && this.year) {
+                this.getwechatSummary(
+                  this.season,
+                  this.year,
+                  this.type,
+                  this.field
+                ).then(res => {
+                  this.summary = {};
+                  if (typeof res.data == "object") {
+                    this.summary = res.data;
+                  }
+                });
+              }
+              this.getwechatData(
+                this.season,
+                this.year,
+                this.type,
+                this.field
+              ).then(res => {
+                if (res.data != "false") {
+                  this.tableData = res.data;
+                } else {
+                  this.tableData = [];
+                }
+              });
+            });
+          }
+        },
+        immediate: true
+      },
+      field: {
+        handler(val) {
           setTimeout(() => {
             if (this.season && this.year) {
               this.getwechatSummary(
@@ -320,6 +352,7 @@ export default {
                 }
               });
             }
+
             this.getwechatData(
               this.season,
               this.year,
@@ -333,72 +366,13 @@ export default {
               }
             });
           });
-        }
+        },
+        immediate: true
       },
-      immediate: true
-    },
-    field: {
-      handler(val) {
-        setTimeout(() => {
-          if (this.season && this.year) {
-            this.getwechatSummary(
-              this.season,
-              this.year,
-              this.type,
-              this.field
-            ).then(res => {
-              this.summary = {};
-              if (typeof res.data == "object") {
-                this.summary = res.data;
-              }
-            });
-          }
-
-          this.getwechatData(
-            this.season,
-            this.year,
-            this.type,
-            this.field
-          ).then(res => {
-            if (res.data != "false") {
-              this.tableData = res.data;
-            } else {
-              this.tableData = [];
-            }
-          });
-        });
-      },
-      immediate: true
-    },
-    organ(val) {
-      this.getwechatData(this.season, this.year, this.type, this.field, {
-        organ: String(this.organ)
-      }).then(res => {
-        if (res.data != "false") {
-          this.tableData = res.data;
-        } else {
-          this.tableData = [];
-        }
-      });
-    }
-  },
-  methods: {
-    goSeach() {
-      if (this.searchData) {
-        if (this.organ != "机构名" && this.organ) {
+      organ(val) {
+        if (this.organ != "机构名") {
           this.getwechatData(this.season, this.year, this.type, this.field, {
-            name: this.searchData,
-            organ: this.organ
-          }).then(res => {
-            if (res.data != "false") {
-              this.tableData = res.data;
-            } else {
-              this.tableData = [];
-            }
-          });
-        } else {
-          this.getwechatData(this.season, this.year, this.type, this.field, {
-            name: this.searchData
+            organ: String(this.organ)
           }).then(res => {
             if (res.data != "false") {
               this.tableData = res.data;
@@ -409,187 +383,217 @@ export default {
         }
       }
     },
-    goDetail(ev) {
-      var dataset = ev.target.dataset;
-      this.$router.push({
-        name: "detail",
-        params: { Otype: "wechatRank", name: escape(dataset.name) }
-      });
-    },
-    getOrgan(type) {
-      return this.$http.post(
-        "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getOrgan",
-        {
-          mname: "wechat",
-          type: type
+    methods: {
+      goSeach() {
+        if (this.searchData) {
+          if (this.organ != "机构名" && this.organ) {
+            this.getwechatData(this.season, this.year, this.type, this.field, {
+              name: this.searchData,
+              organ: this.organ
+            }).then(res => {
+              if (res.data != "false") {
+                this.tableData = res.data;
+              } else {
+                this.tableData = [];
+              }
+            });
+          } else {
+            this.getwechatData(this.season, this.year, this.type, this.field, {
+              name: this.searchData
+            }).then(res => {
+              if (res.data != "false") {
+                this.tableData = res.data;
+              } else {
+                this.tableData = [];
+              }
+            });
+          }
         }
-      );
-    },
-    getwechatSummary(season, year, type, field) {
-      return this.$http.post(
-        "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/summary",
-        {
+      },
+      goDetail(ev) {
+        var dataset = ev.target.dataset;
+        let routeData = this.$router.resolve({
+          name: "detail",
+          params: {
+            Otype: "wechatRank",
+            name: escape(dataset.name)
+          }
+        });
+        window.open(routeData.href, '_blank');
+      },
+      getOrgan(type) {
+        return this.$http.post(
+          "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getOrgan", {
+            mname: "wechat",
+            type: type
+          }
+        );
+      },
+      getwechatSummary(season, year, type, field) {
+        return this.$http.post(
+          "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/summary", {
+            season: season,
+            year: year,
+            type: type,
+            field: field
+          }
+        );
+      },
+      getwechatData(season, year, type, field, otherOptions) {
+        var options = {
           season: season,
           year: year,
           type: type,
           field: field
+        };
+        Object.assign(options, otherOptions);
+        return this.$http.post(
+          "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatData",
+          options
+        );
+      },
+      handleClick(tab, event) {
+        console.log(tab, event);
+      },
+      onSubmit() {
+        console.log("submit!");
+      },
+      radioChange() {
+        switch (this.radio) {
+          case "阅读量":
+            this.field = "read";
+            this.tableHeader = [
+              "排名",
+              "机构",
+              "微信号",
+              "总阅读数",
+              "头条阅读量",
+              "平均阅读量",
+              "单篇最高阅读"
+            ];
+            this.organ = "机构名";
+            break;
+          case "点赞量":
+            this.field = "like";
+            this.tableHeader = [
+              "排名",
+              "机构",
+              "微信号",
+              "总点赞量",
+              "平均点赞量",
+              "头条总点赞量"
+            ];
+            this.organ = "机构名";
+            break;
+          case "发稿量":
+            this.field = "send";
+            this.tableHeader = ["排名", "机构", "微信号", "推送数", "发文数"];
+            this.organ = "机构名";
+            break;
+          case "记者评价榜":
+            this.field = "score";
+            this.tableHeader = [
+              "排名",
+              "机构",
+              "微信号",
+              "文风亲和力",
+              "舆情应对",
+              "信息公开",
+              "媒体评价"
+            ];
+            this.organ = "机构名";
+            break;
         }
-      );
-    },
-    getwechatData(season, year, type, field, otherOptions) {
-      var options = {
-        season: season,
-        year: year,
-        type: type,
-        field: field
-      };
-      Object.assign(options, otherOptions);
-      return this.$http.post(
-        "http://research.nandu.com/mediarank/htdoc/api.php?s=/NdzwInterfaces/getWechatData",
-        options
-      );
-    },
-    handleClick(tab, event) {
-      console.log(tab, event);
-    },
-    onSubmit() {
-      console.log("submit!");
-    },
-    radioChange() {
-      switch (this.radio) {
-        case "阅读量":
-          this.field = "read";
-          this.tableHeader = [
-            "排名",
-            "机构",
-            "微信号",
-            "总阅读数",
-            "头条阅读量",
-            "平均阅读量",
-            "单篇最高阅读"
-          ];
-          this.organ = "机构名";
-          break;
-        case "点赞量":
-          this.field = "like";
-          this.tableHeader = [
-            "排名",
-            "机构",
-            "微信号",
-            "总点赞量",
-            "平均点赞量",
-            "头条总点赞量"
-          ];
-          this.organ = "机构名";
-          break;
-        case "发稿量":
-          this.field = "send";
-          this.tableHeader = ["排名", "机构", "微信号", "推送数", "发文数"];
-          this.organ = "机构名";
-          break;
-        case "记者评价榜":
-          this.field = "score";
-          this.tableHeader = [
-            "排名",
-            "机构",
-            "微信号",
-            "文风亲和力",
-            "舆情应对",
-            "信息公开",
-            "媒体评价"
-          ];
-          this.organ = "机构名";
-          break;
       }
     }
-  }
-};
+  };
+
 </script>
 
 <style scoped lang="scss">
-@import "../../assets/css/style.scss";
-.container {
-  .allRank-header {
-    display: flex;
-    justify-content: space-between;
-  }
-  .selectBtn {
-    padding-top: 30px;
-    text-align: center;
-  }
-  .el-container {
-  }
-  .cardWarp1 {
-    padding: 22px 30px;
-    .cardBox {
-      ul {
-        padding: 0;
-        margin: 0;
-        font-size: 0;
-        list-style: none;
-        display: flex;
-        justify-content: space-around;
-        li {
-          font-size: 16px;
-          .type {
-            font-size: 14px;
-            color: #666666;
-          }
-          .organization {
-            font-size: 18px;
-            color: #333;
-            font-weight: 600;
-          }
-          .num {
-            span {
-              color: #c91b1b;
+  @import "../../assets/css/style.scss";
+  .container {
+    .allRank-header {
+      display: flex;
+      justify-content: space-between;
+    }
+    .selectBtn {
+      padding-top: 30px;
+      text-align: center;
+    }
+    .el-container {}
+    .cardWarp1 {
+      padding: 22px 30px;
+      .cardBox {
+        ul {
+          padding: 0;
+          margin: 0;
+          font-size: 0;
+          list-style: none;
+          display: flex;
+          justify-content: space-around;
+          li {
+            font-size: 16px;
+            .type {
+              font-size: 14px;
+              color: #666666;
+            }
+            .organization {
+              font-size: 18px;
+              color: #333;
+              font-weight: 600;
+            }
+            .num {
+              span {
+                color: #c91b1b;
+              }
             }
           }
         }
       }
     }
-  }
-  .cardWarp2 {
-    padding: 50px 30px;
-    .cardHeader {
-      display: flex;
-      justify-content: space-between;
-      .right {
+    .cardWarp2 {
+      padding: 50px 30px;
+      .cardHeader {
         display: flex;
-        .el-select {
-          margin-right: 10px;
-        }
-        .searchW {
-          margin-left: 70px;
-
-          .search {
-            height: 30px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px 0 0 4px;
-            margin: 0;
-            padding: 0 10px;
-            vertical-align: middle;
+        justify-content: space-between;
+        .right {
+          display: flex;
+          .el-select {
+            margin-right: 10px;
           }
-          .searchBtn {
-            vertical-align: middle;
-            height: 30px;
-            line-height: 30px;
-            padding: 0;
-            margin-left: -4px;
-            box-sizing: border-box;
-            padding: 0 14px;
-            color: #fff;
-            background-color: #c91b1b;
-            border: 0;
-            border-radius: 0 4px 4px 0;
+          .searchW {
+            margin-left: 70px;
+
+            .search {
+              height: 30px;
+              box-sizing: border-box;
+              border: 1px solid #ccc;
+              border-radius: 4px 0 0 4px;
+              margin: 0;
+              padding: 0 10px;
+              vertical-align: middle;
+            }
+            .searchBtn {
+              vertical-align: middle;
+              height: 30px;
+              line-height: 30px;
+              padding: 0;
+              margin-left: -4px;
+              box-sizing: border-box;
+              padding: 0 14px;
+              color: #fff;
+              background-color: #c91b1b;
+              border: 0;
+              border-radius: 0 4px 4px 0;
+            }
           }
         }
       }
-    }
-    .table-wrapper {
-      @include Mytable;
+      .table-wrapper {
+        @include Mytable;
+      }
     }
   }
-}
+
 </style>
